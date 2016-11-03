@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "private": false,
   "dependencies": {
-    "redis": "^2.2.5",
+    "redis": "^2.6.x",
     "pomelo-logger": "0.1.5"
+  },
+  "devDependencies": {
+    "bluebird": "^3.0.2",
+    "eslint": "^2.5.0",
+    "mocha": "^2.3.2",
+    "gulp": "*",
+    "gulp-eslint": "*",
+    "gulp-strip-debug": "*"
   }
 }

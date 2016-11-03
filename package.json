@@ -1,0 +1,9 @@
+{
+  "name": "pomeloGlobalChannel",
+  "version": "1.0.0",
+  "private": false,
+  "dependencies": {
+    "redis": "^2.2.5",
+    "pomelo-logger": "0.1.5"
+  }
+}

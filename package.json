@@ -1,13 +1,17 @@
 {
   "name": "pomeloGlobalChannel",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": false,
-  "dependencies": {
+  "dependencies":
+  {
     "redis": "^2.6.x",
+    "bluebird": "^3.0.2",
+    "co":"*",
     "pomelo-logger": "0.1.5"
   },
-  "devDependencies": {
-    "bluebird": "^3.0.2",
+
+  "devDependencies":
+  {
     "eslint": "^2.5.0",
     "mocha": "^2.3.2",
     "gulp": "*",

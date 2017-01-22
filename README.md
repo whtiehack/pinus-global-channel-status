@@ -1,3 +1,9 @@
+# 使用说明
+
+- es6 语法
+- 兼容 pomelo2.x 系列
+- 内置 redis使用
+
 # pomeloGlobalChannel
 pomelo 分布式服务器通讯 原址：https://github.com/NetEase/pomelo-globalchannel-plugin
 

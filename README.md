@@ -3,6 +3,12 @@
 - es6 语法
 - 兼容 pomelo2.x 系列
 - 内置 redis使用
+- 发送消息给某一个或多个玩家
+- 发送消息给指定的channelName
+- 发送消息给指定 sid 和 channelName 
+- 发送消息给用户列表中指定sid的用户
+
+
 
 # pomeloGlobalChannel
 pomelo 分布式服务器通讯 原址：https://github.com/NetEase/pomelo-globalchannel-plugin

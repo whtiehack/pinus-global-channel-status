@@ -55,7 +55,7 @@ module.exports = {
         "no-process-env": "error",
         "array-bracket-spacing": ["error", "never"],
         "block-spacing": ["error", "never"],
-        "brace-style": ["error", "allman", { "allowSingleLine": true }],
+        "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         "new-parens": "error",
         "newline-per-chained-call": ["error"],
         "no-array-constructor": "error",

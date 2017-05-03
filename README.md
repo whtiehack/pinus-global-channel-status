@@ -26,53 +26,9 @@ app.use(globalChannel, {globalChannel: {
 
 ```
 
-##API
-
-###add(name, uid, sid, cb)
-add a member into channel
-####Arguments
-+ name - channel name.
-+ uid - user id.
-+ sid - frontend server id
-+ cb - callback function
-
-###leave(name, uid, sid, cb)
-remove user from channel
-####Arguments
-+ name - channel name.
-+ uid - user id.
-+ sid - frontend server id
-+ cb - callback function
-
-###getMemberBySid(name, sid, cb)
-get members by frontend server id
-####Arguments
-+ name - channel name
-+ sid - frontend server id
-+ cb - callback function
-
-###getMembersByChannelName(stype, name, cb)
-get members by channel name
-####Arguments
-+ stype - frontend server type string
-+ name - channel name
-+ cb callback function
-
-###pushMessage(stype, route, msg, name, opts, cb)
-send message by global channel
-####Arguments
-+ stype - frontend server type string
-+ route - route string
-+ msg - message would be sent to clients
-+ name - channel name
-+ opts - optional parameters
-+ cb - callback function
-
-###destroyChannel(name, cb)
-destroy a global channel
-####Arguments
-+ name - channel name
-+ cb - callback function
+##API 
+path: [doc/GlobalChannelService.html]
+[api](./docs/GlobalChannelService.html)
 
 ##Notice
 

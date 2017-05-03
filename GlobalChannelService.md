@@ -14,7 +14,7 @@
     * [.getSidsByUidArr(uidArr)](#GlobalChannelService+getSidsByUidArr) ⇒ <code>\*</code>
     * [.destroyChannel(channelName)](#GlobalChannelService+destroyChannel)
     * [.add(uid, sid, channelName)](#GlobalChannelService+add) ⇒ <code>\*</code>
-    * [.leave(channelName, uid, sid)](#GlobalChannelService+leave)
+    * [.leave(uid, sid, channelName)](#GlobalChannelService+leave)
 
 <a name="new_GlobalChannelService_new"></a>
 
@@ -52,7 +52,7 @@ and global channel service would be accessed by
 | uidArr |  | 要发送的玩家列表 |
 | route |  | 消息号 |
 | msg |  | 消息内容 |
-| frontServerId | <code></code> | 指定的前端服务器Id, 默认不指定 |
+| frontServerId | <code>null</code> | 指定的前端服务器Id, 默认不指定 |
 
 <a name="GlobalChannelService+pushMessage"></a>
 
@@ -141,11 +141,11 @@ Add a member into channel.
 | --- | --- | --- | --- |
 | uid | <code>String</code> |  | user id |
 | sid | <code>String</code> |  | frontend server id |
-| channelName | <code>String</code> | <code></code> | if channelName == null add redis |
+| channelName | <code>String</code> | <code>null</code> | if channelName == null add redis |
 
 <a name="GlobalChannelService+leave"></a>
 
-### globalChannelService.leave(channelName, uid, sid)
+### globalChannelService.leave(uid, sid, channelName)
 Remove user from channel.
 移除一个玩家
 
@@ -153,6 +153,7 @@ Remove user from channel.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| channelName | <code>String</code> | <code></code> | channel name |
 | uid | <code>String</code> |  | user id |
 | sid | <code>String</code> |  | frontend server id |
+| channelName | <code>String</code> | <code>null</code> | channel name |
+

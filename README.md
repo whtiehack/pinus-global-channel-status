@@ -32,9 +32,10 @@ app.use(globalChannel, {globalChannel: {
 
 ```
 
-##API 
+## [API](./GlobalChannelService.md)
+
 path: [doc/GlobalChannelService.html]
-[api](./docs/GlobalChannelService.html)
+
 
 ##Notice
 

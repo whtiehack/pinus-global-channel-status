@@ -2,21 +2,22 @@
 
 ### Table of Contents
 
--   [constructor](#constructor)
--   [pushMessageForUid](#pushmessageforuid)
--   [pushMessageByUidArr](#pushmessagebyuidarr)
--   [pushMessage](#pushmessage)
--   [getMembersByChannelName](#getmembersbychannelname)
--   [getMembersBySid](#getmembersbysid)
--   [getSidsByUid](#getsidsbyuid)
--   [getSidsByUidArr](#getsidsbyuidarr)
--   [destroyChannel](#destroychannel)
--   [add](#add)
--   [leave](#leave)
+-   [GlobalChannelService](#globalchannelservice)
+    -   [constructor](#constructor)
+    -   [pushMessageForUid](#pushmessageforuid)
+    -   [pushMessageByUidArr](#pushmessagebyuidarr)
+    -   [pushMessage](#pushmessage)
+    -   [getMembersByChannelName](#getmembersbychannelname)
+    -   [getMembersBySid](#getmembersbysid)
+    -   [getSidsByUid](#getsidsbyuid)
+    -   [getSidsByUidArr](#getsidsbyuidarr)
+    -   [destroyChannel](#destroychannel)
+    -   [add](#add)
+    -   [leave](#leave)
 -   [InvokeCallback](#invokecallback)
 -   [getMembersByChannelName](#getmembersbychannelname-1)
 
-## constructor
+## GlobalChannelService
 
 Global channel service.
 GlobalChannelService is created by globalChannel component which is a default
@@ -29,21 +30,30 @@ and global channel service would be accessed by
 -   `app`  
 -   `opts`  
 
-## pushMessageForUid
+### constructor
+
+构造函数
+
+**Parameters**
+
+-   `app` **any** pomelo instance
+-   `opts` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 参数列表
+
+### pushMessageForUid
 
 发送消息给指定服务器 中的某一些人
 
 **Parameters**
 
+-   `route` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** route string
+-   `msg` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 消息内容
+-   `uids` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** userId array
 -   `serverType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server type
 -   `frontServerId` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server Id
--   `route` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** route string
--   `uids` **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** userId array
--   `msg`  
 
 Returns **any** 
 
-## pushMessageByUidArr
+### pushMessageByUidArr
 
 群发消息给玩家
 
@@ -52,11 +62,11 @@ Returns **any**
 -   `uidArr` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** 要发送的玩家列表
 -   `route` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 消息号
 -   `msg` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 消息内容
--   `frontServerId` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 指定的前端服务器Id, 默认不指定 (optional, default `null`)
+-   `frontServerId` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | null)** 指定的前端服务器Id, 默认不指定 (optional, default `null`)
 
 Returns **any** 
 
-## pushMessage
+### pushMessage
 
 Send message by global channel.
  发送消息给指定 channelName 的所有玩家
@@ -68,7 +78,7 @@ Send message by global channel.
 -   `msg` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** message would be sent to clients
 -   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** channel name
 
-## getMembersByChannelName
+### getMembersByChannelName
 
 Get members by channel name.
 获取指定 channelName 和 服务器类型的成员
@@ -78,7 +88,7 @@ Get members by channel name.
 -   `serverType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server type string
 -   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** channel name
 
-## getMembersBySid
+### getMembersBySid
 
 Get members by frontend server id.
 获取指定服务器和channelName 的玩家列表
@@ -88,7 +98,7 @@ Get members by frontend server id.
 -   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** channel name
 -   `frontId` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server id
 
-## getSidsByUid
+### getSidsByUid
 
 获得指定玩家在所在的服务器
 
@@ -98,7 +108,7 @@ Get members by frontend server id.
 
 Returns **any** 
 
-## getSidsByUidArr
+### getSidsByUidArr
 
 获取指定玩家的服务器列表
 
@@ -108,7 +118,7 @@ Returns **any**
 
 Returns **any** 
 
-## destroyChannel
+### destroyChannel
 
 Destroy a global channel.
 
@@ -116,7 +126,7 @@ Destroy a global channel.
 
 -   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** global channel name
 
-## add
+### add
 
 添加一个玩家 到指定channelName
 Add a member into channel.
@@ -125,11 +135,11 @@ Add a member into channel.
 
 -   `uid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** user id
 -   `sid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server id
--   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** if channelName == null add redis (optional, default `null`)
+-   `channelName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** 指定的 channelName (optional, default `null`)
 
 Returns **any** is add: 1 add success, 0 fail
 
-## leave
+### leave
 
 Remove user from channel.
 移除一个玩家
@@ -138,7 +148,7 @@ Remove user from channel.
 
 -   `uid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** user id
 -   `sid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server id
--   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** channel name (optional, default `null`)
+-   `channelName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** channel name (optional, default `null`)
 
 ## InvokeCallback
 

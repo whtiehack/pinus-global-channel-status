@@ -37,18 +37,21 @@ const ST_INITED = 0;
 const ST_STARTED = 1;
 const ST_CLOSED = 2;
 
+/**
+ * Global channel service.
+ * GlobalChannelService is created by globalChannel component which is a default
+ * component of pomelo enabled by `app.set('globalChannelConfig', {...})`
+ * and global channel service would be accessed by
+ * `app.get('globalChannelService')`.
+ * @class
+ */
 class GlobalChannelService
 {
-    /**
-     * Global channel service.
-     * GlobalChannelService is created by globalChannel component which is a default
-     * component of pomelo enabled by `app.set('globalChannelConfig', {...})`
-     * and global channel service would be accessed by
-     * `app.get('globalChannelService')`.
-     *
-     * @class
-     * @constructor
-     */
+	/**
+	 * 构造函数
+	 * @param {*} app pomelo instance
+	 * @param {Object} opts 参数列表
+	 */
 	constructor(app, opts) {
 		this.app = app;
 		this.opts = opts || {};
@@ -59,19 +62,19 @@ class GlobalChannelService
 	}
 
 	/**
-	 * 发送消息给指定服务器中的某一些人
-	 * @param serverType frontend server type
-	 * @param frontServerId  frontend server Id
-	 * @param route route string
-	 * @param sendUids uids
-	 * @param msg
-	 * @returns {*}
+	 * 发送消息给指定服务器 中的某一些人
+	 * @param {String} route route string
+	 * @param {Array} uids userId array
+	 * @param {Object} msg 消息内容
+	 * @param {String} serverType frontend server type
+	 * @param {String} frontServerId  frontend server Id
+	 * @returns {Array} send message fail userList
 	 */
-	*pushMessageForUid(serverType, frontServerId, route, sendUids, msg) {
+	*pushMessageForUid(route, msg, uids, serverType, frontServerId) {
 		if (this.state !== ST_STARTED) {
 			throw new Error('invalid state');
 		}
-		if (!sendUids || sendUids.length === 0) {
+		if (!uids || uids.length === 0) {
 			return [];
 		}
 		const servers = this.app.getServersByType(serverType);
@@ -80,26 +83,26 @@ class GlobalChannelService
             // no frontend server infos
 			return [];
 		}
-		return yield GlobalChannelServiceUtility.RpcInvoke(this.app, frontServerId, route, msg, sendUids);
-
+		return yield GlobalChannelServiceUtility.RpcInvoke(this.app, frontServerId, route, msg, uids);
 	}
 
 	/**
 	 *  群发消息给玩家
-	 * @param uidArr 要发送的玩家列表
-	 * @param route   消息号
-	 * @param msg    消息内容
-	 * @param frontServerId 指定的前端服务器Id, 默认不指定
-	 * @returns {*}
+	 * @param {String|Array} uidArr 要发送的玩家列表
+	 * @param {String} route   消息号
+	 * @param {String} msg    消息内容
+	 * @param {String | null} frontServerId 指定的前端服务器Id, 默认不指定
+	 * @returns {Array} send message fail userList
 	 */
-	*pushMessageByUidArr(uidArr, route, msg, frontServerId = null)	{
-		if (this.state !== ST_STARTED)		{
+	*pushMessageByUidArr(uidArr, route, msg, frontServerId = null) {
+		if (_.isEmpty(uidArr)) throw new Error('userId List is null');
+		if (this.state !== ST_STARTED) {
 			throw new Error('invalid state');
 		}
 
 		const uidObject = yield this.getSidsByUidArr(uidArr);
 		const records = {};
-		_.forEach(uidObject, (sids, uid) =>		{
+		_.forEach(uidObject, (sids, uid) =>	{
 			if (Array.isArray(sids) &amp;&amp; sids.length > 0)	{
 				if (frontServerId != null) {
 					if (sids.includes(frontServerId)) {
@@ -178,8 +181,8 @@ class GlobalChannelService
      * 获取指定 channelName 和 服务器类型的成员
      * @param  {String}   serverType frontend server type string
      * @param  {String}   channelName channel name
-     *
-     * @memberOf GlobalChannelService
+     * @memberOf GlobalChannelService.
+     * @public
      */
 	*getMembersByChannelName(serverType, channelName) {
 		if (this.state !== ST_STARTED) {
@@ -204,11 +207,11 @@ class GlobalChannelService
 
 	/**
 	 *  获得指定玩家在所在的服务器
-	 * @param uid
-	 * @returns {*}
+	 * @param uid 要查找的 玩家id
+	 * @returns {Array}
 	 */
-	*getSidsByUid(uid)	{
-		if (this.state !== ST_STARTED)		{
+	*getSidsByUid(uid) {
+		if (this.state !== ST_STARTED) {
 			throw new Error('invalid state');
 		}
 		return yield this.manager.getSidsByUid(uid);
@@ -216,11 +219,11 @@ class GlobalChannelService
 
 	/**
 	 *  获取指定玩家的服务器列表
-	 * @param uidArr
-	 * @returns {*}
+	 * @param uidArr 要查找的玩家列表
+	 * @returns {Object}
 	 */
-	*getSidsByUidArr(uidArr)	{
-		if (this.state !== ST_STARTED)		{
+	*getSidsByUidArr(uidArr) {
+		if (this.state !== ST_STARTED) {
 			throw new Error('invalid state');
 		}
 		return yield this.manager.getSidsByUidArr(uidArr);
@@ -272,7 +275,6 @@ class GlobalChannelService
 
     /**
      * Destroy a global channel.
-     *
      * @param  {String}  channelName global channel name
      * @memberOf GlobalChannelService
      */
@@ -288,23 +290,22 @@ class GlobalChannelService
 	 * Add a member into channel.
 	 * @param {String} uid  user id
 	 * @param {String} sid  frontend server id
-	 * @param {String} channelName  if channelName == null add redis
-	 * @returns {*} is add: 1 add success, 0 fail
+	 * @param {String | Array} channelName  指定的 channelName
+	 * @returns {number} is add: 1 add success, 0 fail
 	 */
 	*add(uid, sid, channelName = null) {
 		if (this.state !== ST_STARTED) {
 			throw new Error('invalid state');
 		}
 		return yield this.manager.add(uid, sid, channelName);
-
 	}
 
     /**
      * Remove user from channel.
      * 移除一个玩家
-     * @param  {String}   channelName channel name
      * @param  {String}   uid  user id
      * @param  {String}   sid  frontend server id
+     * @param  {String | Array}   channelName channel name
      * @memberOf GlobalChannelService
      */
 	*leave(uid, sid, channelName = null) {
@@ -315,8 +316,17 @@ class GlobalChannelService
 	}
 }
 
+/**
+ * @private
+ */
 class GlobalChannelServiceUtility
 {
+	/**
+	 *
+	 * @param app
+	 * @param opts
+	 * @returns {*}
+	 */
 	static GetChannelManager(app, opts) {
 		let channelManager;
 		if (typeof opts.channelManager === 'function') {
@@ -371,7 +381,7 @@ module.exports = GlobalChannelService;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed May 03 2017 18:50:08 GMT+0800 (CST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri May 05 2017 16:16:31 GMT+0800 (CST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -14,8 +14,6 @@
     -   [destroyChannel](#destroychannel)
     -   [add](#add)
     -   [leave](#leave)
--   [InvokeCallback](#invokecallback)
--   [getMembersByChannelName](#getmembersbychannelname-1)
 
 ## GlobalChannelService
 
@@ -51,7 +49,7 @@ and global channel service would be accessed by
 -   `serverType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server type
 -   `frontServerId` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server Id
 
-Returns **any** 
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** send message fail userList
 
 ### pushMessageByUidArr
 
@@ -64,7 +62,7 @@ Returns **any**
 -   `msg` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 消息内容
 -   `frontServerId` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | null)** 指定的前端服务器Id, 默认不指定 (optional, default `null`)
 
-Returns **any** 
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** send message fail userList
 
 ### pushMessage
 
@@ -104,9 +102,9 @@ Get members by frontend server id.
 
 **Parameters**
 
--   `uid`  
+-   `uid`  要查找的 玩家id
 
-Returns **any** 
+Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** 
 
 ### getSidsByUidArr
 
@@ -114,9 +112,9 @@ Returns **any**
 
 **Parameters**
 
--   `uidArr`  
+-   `uidArr`  要查找的玩家列表
 
-Returns **any** 
+Returns **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
 
 ### destroyChannel
 
@@ -137,7 +135,7 @@ Add a member into channel.
 -   `sid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server id
 -   `channelName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** 指定的 channelName (optional, default `null`)
 
-Returns **any** is add: 1 add success, 0 fail
+Returns **[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** is add: 1 add success, 0 fail
 
 ### leave
 
@@ -149,22 +147,3 @@ Remove user from channel.
 -   `uid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** user id
 -   `sid` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server id
 -   `channelName` **([String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array))** channel name (optional, default `null`)
-
-## InvokeCallback
-
-Invoke callback with check
-
-**Parameters**
-
--   `cb`  
--   `args` **...any** 
-
-## getMembersByChannelName
-
-Get members by channelName and serverType.
-获取指定 channelName 的成员
-
-**Parameters**
-
--   `serverType` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** frontend server type string
--   `channelName` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** channel name

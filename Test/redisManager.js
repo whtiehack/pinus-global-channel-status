@@ -9,7 +9,7 @@ const redisManager = new RedisManager(null, config);
 const serverType = 'connector';
 const serverId = ['connector_1', 'connector_2', 'connector_3'];
 const serverData = [{id: 'connector_1'}, {id: 'connector_2'}, {id: 'connector_3'}];
-const channelName = 'channelName';
+const channelName = ['channelName1', 'channelName2', 'channelName3'];
 
 class Test
 {
@@ -28,10 +28,10 @@ class Test
 	static async add()
 	{
 		const coArr = [];
-		for (let i = 0; i < 10; i++)
+		for (let i = 0; i < 30; i++)
 		{
 			const index = Test.random(0, serverId.length - 1);
-			coArr.push(redisManager.add(`uuid_${i%3}`, serverId[index], channelName));
+			coArr.push(redisManager.add(`uuid_${i}`, serverId[index], channelName[i%3]));
 		}
 		const result = await Promise.all(coArr);
 		console.info(result);
@@ -40,7 +40,7 @@ class Test
 	static async getMembersBySid()
 	{
 		const index = Test.random(0, serverId.length - 1);
-		const members = await redisManager.getMembersBySid(channelName, serverId[index]);
+		const members = await redisManager.getMembersBySid(channelName[0], serverId[index]);
 		console.info(members);
 	}
 
@@ -90,6 +90,12 @@ class Test
 		console.info(members);
 	}
 
+	static async getMembersByChannelNameAndSid()
+	{
+		const members = await redisManager.getMembersByChannelNameAndSid('connector_1', channelName[0]);
+		console.info(members);
+	}
+
 	static async leaveNoChannel()
 	{
 		const coArr = [];
@@ -106,16 +112,8 @@ class Test
 		await Test.before();
 		await Test.add();
 		await Test.getMembersBySid();
-		await Test.leave();
+		await Test.getMembersByChannelNameAndSid();
 		await Test.getMembersByChannel();
-		await Test.after();
-	}
-
-	static async channelName()
-	{
-		await Test.before();
-		await Test.add();
-		await Test.getMembersBySid();
 		await Test.leave();
 		await Test.getMembersByChannel();
 		await Test.after();
@@ -132,8 +130,8 @@ class Test
 		await Test.after();
 	}
 }
-
-Test.globalService();
+Test.test();
+// Test.globalService();
 
 
 

@@ -2,15 +2,9 @@
   "name": "pomeloGlobalChannel",
   "version": "3.0.5",
   "private": false,
+  "main": "./dist/index.js",
+  "types": "./src",
   "dependencies": {
     "redis": "^2.7.1"
-  },
-  "devDependencies": {
-    "ava": "^0.20.0",
-    "eslint": "^2.13.1",
-    "gulp": "*",
-    "gulp-eslint": "*",
-    "gulp-strip-debug": "*",
-    "mocha": "^2.3.2"
   }
 }

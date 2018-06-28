@@ -116,6 +116,7 @@ class Test
 		await Test.getMembersByChannel();
 		await Test.leave();
 		await Test.getMembersByChannel();
+        await Test.addNoChannel();
 		await Test.after();
 	}
 

@@ -1,9 +1,9 @@
-const { promisify } = require('util')
+import { promisify } from 'util';
 
 const functionBlackListMap =
     Object.getOwnPropertyNames(Object.prototype)
         .reduce(function (map, functionName) {
-            map[functionName] = true
+            map[functionName] = true;
             return map
         }, {});
 
@@ -13,10 +13,10 @@ function _promisifyAllFunctions (object) {
             continue;
         }
 
-        const descriptor = Object.getOwnPropertyDescriptor(object, key)
+        const descriptor = Object.getOwnPropertyDescriptor(object, key);
 
         if (!descriptor.get) {
-            const func = object[key]
+            const func = object[key];
             if (typeof func === 'function') {
                 object[`${key}Async`] = promisify(func)
             }
@@ -24,13 +24,13 @@ function _promisifyAllFunctions (object) {
     }
 }
 
-module.exports = function (object) {
-    _promisifyAllFunctions(object)
+export default function (object) {
+    _promisifyAllFunctions(object);
 
-    const proto = Object.getPrototypeOf(object)
+    const proto = Object.getPrototypeOf(object);
     if (proto) {
         _promisifyAllFunctions(proto)
     }
 
     return object
-}
+};

@@ -1,8 +1,9 @@
 'use strict';
-const utils = require('../util/Utils');
-const util = require('util');
-const rpcInvoke = Symbol('rpcInvoke');
-const DefaultChannelManager = require('../manager/RedisGlobalChannelManager');
+import utils from '../util/Utils';
+import * as util from 'util';
+
+import DefaultChannelManager from '../manager/RedisGlobalChannelManager';
+import {PinusGlobalChannelStatusOptions} from "../manager/StatusChannelManager";
 
 const ST_INITED = 0;
 const ST_STARTED = 1;
@@ -18,28 +19,23 @@ const ST_CLOSED = 2;
  */
 class GlobalChannelService
 {
+    manager:DefaultChannelManager;
+    cleanOnStartUp:boolean;
+    state:number = ST_INITED;
+    name:string = '__globalChannel__';
+    RpcInvokePromise = null;
 	/**
 	 * 构造函数
 	 * @param {*} app pomelo instance
 	 * @param {Object} opts 参数列表
 	 */
-	constructor(app, opts)
+	constructor(private app, private opts:PinusGlobalChannelStatusOptions = {})
 	{
-		this.app = app;
-		this.opts = opts || {};
 		this.manager = GlobalChannelServiceUtility.GetChannelManager(app, opts);
-		this[rpcInvoke] = null;
 		this.cleanOnStartUp = opts.cleanOnStartUp;
-		this.state = ST_INITED;
-		this.name = '__globalChannel__';
+		this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
 	}
 
-	get RpcInvokePromise()
-	{
-		if (this[rpcInvoke] === null && typeof this.app.rpcInvoke === 'function')
-			this[rpcInvoke] = util.promisify(this.app.rpcInvoke);
-		return this[rpcInvoke];
-	}
 	/**
 	 * 发送消息给指定服务器 中的某一些人
 	 * @param {String} route route string
@@ -49,7 +45,7 @@ class GlobalChannelService
 	 * @param {String} frontServerId  frontend server Id
 	 * @returns {Array} send message fail userList
 	 */
-	async pushMessageForUid(route, msg, uids, serverType, frontServerId)
+	async pushMessageForUid(route:string, msg:any, uids:string[], serverType:string, frontServerId:string)
 	{
 		if (this.state !== ST_STARTED)
 		{

@@ -1,5 +1,5 @@
 'use strict';
-class Utils
+export default class Utils
 {
     /**
      * Invoke callback with check
@@ -16,5 +16,3 @@ class Utils
 		}
 	}
 }
-
-module.exports = Utils;

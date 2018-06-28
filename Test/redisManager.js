@@ -131,8 +131,8 @@ class Test
 		await Test.after();
 	}
 }
-Test.test();
-// Test.globalService();
+//Test.test();
+ Test.globalService();
 
 
 

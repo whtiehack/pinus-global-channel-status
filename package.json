@@ -20,6 +20,7 @@
     "node": ">=8.5"
   },
   "scripts": {
-    "install": "tsc"
+    "install": "tsc",
+    "test":"jest"
   }
 }

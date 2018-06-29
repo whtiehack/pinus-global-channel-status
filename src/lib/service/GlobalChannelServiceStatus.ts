@@ -22,7 +22,7 @@ export class GlobalChannelServiceStatus
     private manager:DefaultChannelManager;
     private cleanOnStartUp:boolean;
     private state:number = ST_INITED;
-    public name:string = '__globalChannel__';
+    public name:string = '__globalChannelStatus__';
     private readonly RpcInvokePromise = null;
 	/**
 	 * 构造函数
@@ -71,9 +71,9 @@ export class GlobalChannelServiceStatus
      * @param {string[]} uidArr
      * @param {string} route
      * @param msg
-     * @returns {Promise<any>}
+     * @returns {Promise<null|number[]>} 失败的玩家id数组
      */
-	async pushMessageByUids(uidArr:string[], route:string, msg:any)
+	async pushMessageByUids(uidArr:string[], route:string, msg:any):Promise<null|number[]>
 	{
 		if (!uidArr || !uidArr.length) throw new Error('userId List is null');
 		if (this.state !== ST_STARTED)

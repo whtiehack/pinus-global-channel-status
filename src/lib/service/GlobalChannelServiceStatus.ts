@@ -66,78 +66,60 @@ export class GlobalChannelServiceStatus
 		return await RpcInvoke(this.RpcInvokePromise, frontServerId, route, msg, uids);
 	}
 
-	/**
-	 *  TODO:群发消息给玩家
-	 * @param {String|Array} uidArr 要发送的玩家列表
-	 * @param {String} route   消息号
-	 * @param {String} msg    消息内容
-	 * @param {String | null} frontServerId 指定的前端服务器Id, 默认不指定
-	 * @returns {Array} send message fail userList
-	 */
-	async pushMessageByUidArr(uidArr, route, msg, frontServerId = null)
+    /**
+	 * 群发消息给指定的玩家
+     * @param {string[]} uidArr
+     * @param {string} route
+     * @param msg
+     * @returns {Promise<any>}
+     */
+	async pushMessageByUids(uidArr:string[], route:string, msg:any)
 	{
-		if ([null, undefined].includes(uidArr) || uidArr.length <= 0) throw new Error('userId List is null');
+		if (!uidArr || !uidArr.length) throw new Error('userId List is null');
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
 		}
 
 		const uidObject = await this.getSidsByUidArr(uidArr);
-		const records = new Map();
+		const records:{[serverid:string]:string[]} = {};
 		const keysArr = Object.keys(uidObject);
 		for (let i = 0; i < keysArr.length; i++)
 		{
 			const uid = keysArr[i];
 			const sids = uidObject[uid];
-			let uidSet = null;
-			if (Array.isArray(sids) && sids.length > 0)
+			let uidSet:string[] = null;
+			if (sids && sids.length )
 			{
-				if (![null, undefined].includes(frontServerId))
-				{
-					if (sids.includes(frontServerId))
-					{
-						if (records.has(frontServerId))
-						{
-							uidSet = records.get(frontServerId);
-						}
-						else
-						{
-							uidSet = new Set();
-							records.set(frontServerId, uidSet);
-						}
-						uidSet.add(uid);
-					}
-				}
-				else
-				{
-					for (const serverId of sids)
-					{
-						if (records.has(serverId))
-						{
-							uidSet = records.get(serverId);
-						}
-						else
-						{
-							uidSet = new Set();
-							records.set(serverId, uidSet);
-						}
-						uidSet.add(uid);
-					}
-				}
+                for (const serverId of sids)
+                {
+                    if (records[serverId])
+                    {
+                        uidSet = records[serverId];
+                    }
+                    else
+                    {
+                        uidSet = [];
+                        records[serverId] = uidSet;
+                    }
+                    uidSet.push(uid);
+                }
 			}
 		}
 
 		const sendMessageArr = [];
-		for (const [sid, uidSet] of records)
+		for (const sid in records)
 		{
-			if (uidSet.size > 0)
+			const uidSet = records[sid];
+			if (uidSet.length)
 			{
 				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, uidSet));
 			}
 		}
 		if (sendMessageArr.length > 0)
 		{
-			return await Promise.all(sendMessageArr);
+			const results =  await Promise.all(sendMessageArr);
+			return [].concat(...results);
 		}
 		return null;
 	}
@@ -150,7 +132,7 @@ export class GlobalChannelServiceStatus
      * @param {string | string[]} channelName
      * @returns {Promise<string[]>}  返回失败的 id玩家id数组
      */
-	async pushMessageByChannelName(serverType:string, route:string, msg:any, channelName:string|string[]):Promise<string[]> {
+	public async pushMessageByChannelName(serverType:string, route:string, msg:any, channelName:string|string[]):Promise<string[]> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -188,7 +170,7 @@ export class GlobalChannelServiceStatus
      * @param {string | string[]} channelName
      * @returns {Promise<{[p: string]: {[p: string]: string[]}}>}
      */
-	async getMembersByChannelName(serverType:string, channelName:string|string[]):Promise<{[serverid:string]:{[channelName:string]:string[]}}> {
+	public async getMembersByChannelName(serverType:string, channelName:string|string[]):Promise<{[serverid:string]:{[channelName:string]:string[]}}> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -202,7 +184,7 @@ export class GlobalChannelServiceStatus
      * @param sid
      * @returns {Promise<string[]>}
      */
-	public async getMembersBySid(channelName, sid):Promise<string[]> {
+	public async getMembersBySid(channelName:string, sid:string):Promise<string[]> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');

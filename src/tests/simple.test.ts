@@ -57,7 +57,7 @@ class Test
     static async add()
     {
         const coArr = [];
-        for (let i = 0; i < 30; i++)
+        for (let i = 0; i < 50; i++)
         {
             const index = Test.random(0, serverId.length - 1);
             coArr.push(redisManager.add(`uuid_${i}`, serverId[index], channelName[i%3]));
@@ -208,6 +208,7 @@ describe('test channel',()=>{
             expect(val).toMatchObject([ 1, 1, 1 ]);
             val = await globalChannel.destroyChannel(channelName);
             console.log('destroy val22:',val);
+            await Test.add();
         });
 
         it('test add and leave channel',async ()=>{
@@ -311,27 +312,59 @@ describe('test channel',()=>{
 
         it('test service pushMessageByChannelName',async ()=>{
             const mockRpc = jest.spyOn(globalChannel as any,'RpcInvokePromise',);
+            let failedArr = [];
             mockRpc.mockImplementation(async (serverId: string, msg: object)=>{
                 console.log('mock app.rpcInvoke',serverId,msg);
                 if(serverId == 'connector_1'){
-                    return msg['args'][2];
+                    return failedArr = msg['args'][2];
                 }
                 return []
             });
-            let val = await globalChannel.pushMessageByChannelName('unused','testRoute','testMsg',channelName[0]);
+            let val = await globalChannel.pushMessageByChannelName('unused','testRoute','testMsg',channelName[2]);
             console.log('test pushMessageByChannelName val:',val);
             expect(!!val).toBeTruthy();
             expect(val.length).toBeGreaterThan(0);
-            let members = await globalChannel.getMembersByChannelName('unused',channelName[0]);
+            let members = await globalChannel.getMembersByChannelName('unused',channelName[2]);
             let strVal = JSON.stringify(members);
             for(let uid of val){
                 expect(strVal.indexOf(uid)).toBeGreaterThan(0);
             }
 
-
+            val = await globalChannel.pushMessageByChannelName('unused','testRoute','testMsg',channelName);
+            console.log('@@2test pushMessageByChannelName val:',val);
+            expect(!!val).toBeTruthy();
+            expect(val.length).toBeGreaterThan(0);
+            expect(val).toMatchObject(failedArr);
         });
 
+        it('test service pushMessageByUids',async ()=>{
 
+            let val = await globalChannel.pushMessageByUids(['sss','ggg'],'route pushMessageByUids','msg pushMessageByUids');
+            expect(val).toBe(null);
+
+            let members = await globalChannel.getMembersBySid(channelName[0],serverId[0]);
+            for(const uuid of members){
+                const ret = await globalChannel.addStatus(uuid,serverId[0]);
+                expect(ret).toBe(1);
+            }
+            val = await globalChannel.pushMessageByUids(members,'route pushMessageByUids','msg pushMessageByUids');
+            console.log('!! pushMessageByUids val',val,members);
+            expect(val).toMatchObject([ ]);
+
+            let failedIds = [];
+            const mockRpc = jest.spyOn(globalChannel as any,'RpcInvokePromise',);
+            mockRpc.mockImplementation(async (serverId: string, msg: object)=>{
+                console.log('mock app.rpcInvoke',serverId,msg);
+                if(serverId == 'connector_1'){
+                    return failedIds = msg['args'][2];
+                }
+                return []
+            });
+
+            val = await globalChannel.pushMessageByUids(members,'route pushMessageByUids','msg pushMessageByUids');
+            console.log('@3!! pushMessageByUids val',val,members);
+            expect(val).toMatchObject(failedIds);
+        });
     });
 
 

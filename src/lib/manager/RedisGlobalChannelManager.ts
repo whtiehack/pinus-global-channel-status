@@ -95,7 +95,7 @@ export default class GlobalChannelManager extends StatusChannelManager
       								connector_2: { channelName1: [ 'uuid_15', 'uuid_9', 'uuid_0', 'uuid_18' ] },
       								connector_3: { channelName1: [ 'uuid_6', 'uuid_3' ] }
 	 */
-	public async getMembersByChannelName(serverType:string, channelName:string|string[]):Promise<{[key:string]:(string[])[]}>
+	public async getMembersByChannelName(serverType:string, channelName:string|string[]):Promise<{[serverid:string]:{[channelName:string]:string[]}}>
 	{
 		if(!serverType){
 			return {};

@@ -119,13 +119,13 @@ export abstract class StatusChannelManager
 		return await this.redisClient.smembersAsync(genKey);
 	}
 
-    public async getSidsByUidArr(uidArr:string[]):Promise<{[key:string]:string[]}>
+    public async getSidsByUidArr(uidArr:string[]):Promise<{[uid:string]:string[]}>
 	{
 		let serverIdArr;
 		if(!uidArr || !uidArr.length){
 			return null;
 		}
-        uidArr = [...new Set(uidArr)];
+    //    uidArr = [...new Set(uidArr)];
         serverIdArr = uidArr.map(uid =>
         {
             return ['smembers', StatusChannelManager.GenKey(this.statusPrefix, uid)];

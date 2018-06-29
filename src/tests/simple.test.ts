@@ -16,10 +16,12 @@ const channelName = ['channelName1', 'channelName2', 'channelName3'];
 const serversValue = {'connector_1':serverData[0],'connector_2':serverData[1],'connector_3':serverData[2]};
 
 const app:any = {
-    getServersByType(serverType){},
+    getServersByType(serverType){
+        return serverData;
+    },
     rpcInvoke(serverId: string, msg: object, cb: Function){
         console.log('app.rpcInvoke',serverId,msg);
-        cb(null)
+        cb(null,[])
     },
     isFrontend(server){
         return true;
@@ -230,6 +232,103 @@ describe('test channel',()=>{
             val = await globalChannel.leave('myid',serverId[0],channelName);
             console.log('!!! myid leave channels val:',val);
             expect(val).toMatchObject([1,1,1]);
+        });
+
+        it('test service getSidsByUidArr',async ()=>{
+            let val = await globalChannel.getSidsByUidArr(['?id']);
+
+            expect(!!val).toBeTruthy();
+            expect(val['?id'].length).toBe(0);
+
+            let addVal = await globalChannel.addStatus('?id','testserver');
+            expect(addVal).toBe(1);
+
+            val = await globalChannel.getSidsByUidArr(['?id']);
+            expect(val['?id'].length).toBe(1);
+            expect(val['?id'][0]).toBe('testserver');
+            console.log('testservice  getSidsByUidArr',val);
+            addVal = await globalChannel.leaveStatus('?id','testserver');
+            expect(addVal).toBe(1);
+
+        });
+
+
+        it('test service getSidsByUid',async ()=>{
+            let val = await globalChannel.getSidsByUid('!!id');
+            expect(val).toMatchObject([]);
+            let nVal = await globalChannel.addStatus('!!id','ss1');
+            expect(nVal).toBe(1);
+
+            val = await globalChannel.getSidsByUid('!!id');
+            expect(val).toMatchObject(['ss1']);
+
+            nVal = await globalChannel.addStatus('!!id','ss2');
+            expect(nVal).toBe(1);
+
+            val = await globalChannel.getSidsByUid('!!id');
+            expect(val).toMatchObject(['ss2','ss1']);
+
+            nVal = await globalChannel.leaveStatus('!!id','ss1');
+            expect(nVal).toBe(1);
+
+
+        });
+
+
+        it('test service getMembersBySid ,add channel ,leave channel',async ()=>{
+            let val = await globalChannel.getMembersBySid(channelName[0],'none');
+            expect(val).toMatchObject([]);
+            let nVal = await globalChannel.add('__testGetSid','none',channelName[0]);
+            expect(nVal).toBe(1);
+            val = await globalChannel.getMembersBySid(channelName[0],'none');
+            expect(val).toMatchObject(['__testGetSid']);
+
+            nVal = await globalChannel.leave('__testGetSid','none',channelName[0]);
+            expect(nVal).toBe(1);
+
+        });
+
+        it('test service getMembersByChannelName',async ()=>{
+            let val = await globalChannel.getMembersByChannelName('unused','failedChannel');
+            console.log('!! getMembersByChannelName val',val);
+            expect(Object.keys(val)).toMatchObject(serverId);
+            expect(val).toMatchObject({ connector_1: { failedChannel: [] },
+                connector_2: { failedChannel: [] },
+                connector_3: { failedChannel: [] } });
+
+            await globalChannel.add('@2uid',serverId[0],'@2channel');
+            val = await globalChannel.getMembersByChannelName('unused',['@2channel','@222channel']);
+            console.log('@2!! getMembersByChannelName val',val);
+            expect(Object.keys(val)).toMatchObject(serverId);
+
+            expect(val).toMatchObject({ connector_1: { '@2channel': ['@2uid'] ,'@222channel':[]},
+                connector_2: { '@2channel': [] ,'@222channel':[] },
+                connector_3: { '@2channel': [] ,'@222channel':[] } });
+
+
+
+        });
+
+        it('test service pushMessageByChannelName',async ()=>{
+            const mockRpc = jest.spyOn(globalChannel as any,'RpcInvokePromise',);
+            mockRpc.mockImplementation(async (serverId: string, msg: object)=>{
+                console.log('mock app.rpcInvoke',serverId,msg);
+                if(serverId == 'connector_1'){
+                    return msg['args'][2];
+                }
+                return []
+            });
+            let val = await globalChannel.pushMessageByChannelName('unused','testRoute','testMsg',channelName[0]);
+            console.log('test pushMessageByChannelName val:',val);
+            expect(!!val).toBeTruthy();
+            expect(val.length).toBeGreaterThan(0);
+            let members = await globalChannel.getMembersByChannelName('unused',channelName[0]);
+            let strVal = JSON.stringify(members);
+            for(let uid of val){
+                expect(strVal.indexOf(uid)).toBeGreaterThan(0);
+            }
+
+
         });
 
 

@@ -142,17 +142,15 @@ export class GlobalChannelServiceStatus
 		return null;
 	}
 
-	/**
-     * TODO:Send message by global channel.
-     *  发送消息给指定 channelName 的所有玩家
-     * @param  {String}   serverType  frontend server type
-     * @param  {String}   route       route string
-     * @param  {Object}   msg         message would be sent to clients
-     * @param  {String}   channelName channel name
-     * @memberOf GlobalChannelServiceStatus
+    /**
+	 * 发送消息给指定 channelName 的所有玩家
+     * @param {string} serverType  一般是 ‘connector’  frontendServer
+     * @param {string} route    push 路由
+     * @param msg
+     * @param {string | string[]} channelName
+     * @returns {Promise<string[]>}  返回失败的 id玩家id数组
      */
-	async pushMessageByChannelName(serverType, route, msg, channelName)
-	{
+	async pushMessageByChannelName(serverType:string, route:string, msg:any, channelName:string|string[]):Promise<string[]> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -164,34 +162,33 @@ export class GlobalChannelServiceStatus
 		}
 		const uidObject = await this.getMembersByChannelName(serverType, channelName);
 		const sendMessageArr = [];
-		const keysArr = Object.keys(uidObject);
-		for (let i = 0; i < keysArr.length; i++)
-		{
-			const sid = keysArr[i];
-			const uids = uidObject[sid];
-			if (uids && uids.length > 0)
-			{
-				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, uids));
+		for(let sid in uidObject){
+            const channels = uidObject[sid];
+            let uids:string[] = [];
+            for(let channelName in channels){
+            	let cUids = channels[channelName];
+                uids = uids.concat(cUids);
 			}
+            if (uids && uids.length)
+            {
+                sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, uids));
+            }
 		}
 		if (sendMessageArr.length > 0)
 		{
-			const failIds = await Promise.all(sendMessageArr);
-			return [...new Set([].concat(...failIds))];
+			let failIds = await Promise.all(sendMessageArr);
+			return [].concat(...failIds);
 		}
-		return null;
+		return [];
 	}
 
     /**
-     * TODO:Get members by channel name.
-     * 获取指定 channelName 和 服务器类型的成员
-     * @param  {String}   serverType frontend server type string
-     * @param  {String}   channelName channel name
-     * @memberOf GlobalChannelService.
-     * @public
+	 * 获取指定 channelName 和 服务器类型的成员
+     * @param {string} serverType
+     * @param {string | string[]} channelName
+     * @returns {Promise<{[p: string]: {[p: string]: string[]}}>}
      */
-	async getMembersByChannelName(serverType, channelName)
-    {
+	async getMembersByChannelName(serverType:string, channelName:string|string[]):Promise<{[serverid:string]:{[channelName:string]:string[]}}> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -200,28 +197,25 @@ export class GlobalChannelServiceStatus
 	}
 
     /**
-     * TODO:Get members by frontend server id.
-     * 获取指定服务器和channelName 的玩家列表
-     * @param  {String}   channelName channel name
-     * @param  {String}   frontId  frontend server id
-     * @memberOf GlobalChannelService
+	 * 获取指定服务器和channelName 的玩家列表
+     * @param channelName
+     * @param sid
+     * @returns {Promise<string[]>}
      */
-	async getMembersBySid(channelName, frontId)
-    {
+	public async getMembersBySid(channelName, sid):Promise<string[]> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
 		}
-		return await this.manager.getMembersBySid(channelName, frontId);
+		return await this.manager.getMembersBySid(channelName, sid);
 	}
 
-	/**
-	 *  TODO:获得指定玩家在所在的服务器
-	 * @param uid 要查找的 玩家id
-	 * @returns {Array}
-	 */
-	public async getSidsByUid(uid)
-	{
+    /**
+	 * 获得指定玩家在所在的服务器
+     * @param uid
+     * @returns {Promise<string[]>}
+     */
+	public async getSidsByUid(uid:string):Promise<string[]> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -229,11 +223,12 @@ export class GlobalChannelServiceStatus
 		return await this.manager.getSidsByUid(uid);
 	}
 
-	/**
-	 *  TODO:获取指定玩家的服务器列表
-	 */
-    public async getSidsByUidArr(uidArr)
-	{
+    /**
+	 * 获取指定玩家 addStatus的服务器
+     * @param uidArr
+     * @returns {Promise<{[uid: string]: string[]}>}
+     */
+    public async getSidsByUidArr(uidArr:string[]):Promise<{[uid:string]:string[]}> {
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -419,7 +414,7 @@ function GetChannelManager(app, opts)
     return channelManager;
 }
 
-async function  RpcInvoke(RpcInvokePromise, sid, route, msg, sendUids)
+async function  RpcInvoke(RpcInvokePromise, sid:string, route:string, msg:any, sendUids:string[])
 {
     return await RpcInvokePromise(sid,
     {

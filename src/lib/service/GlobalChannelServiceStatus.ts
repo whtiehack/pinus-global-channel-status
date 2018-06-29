@@ -17,13 +17,13 @@ const ST_CLOSED = 2;
  * `app.get('globalChannelService')`.
  * @class
  */
-class GlobalChannelService
+export class GlobalChannelServiceStatus
 {
     manager:DefaultChannelManager;
-    cleanOnStartUp:boolean;
-    state:number = ST_INITED;
-    name:string = '__globalChannel__';
-    RpcInvokePromise = null;
+    private cleanOnStartUp:boolean;
+    private state:number = ST_INITED;
+    public name:string = '__globalChannel__';
+    private readonly RpcInvokePromise = null;
 	/**
 	 * 构造函数
 	 * @param {*} app pomelo instance
@@ -31,8 +31,9 @@ class GlobalChannelService
 	 */
 	constructor(private app, private opts:PinusGlobalChannelStatusOptions = {})
 	{
-		this.manager = GlobalChannelServiceUtility.GetChannelManager(app, opts);
+		this.manager = GetChannelManager(app, opts);
 		this.cleanOnStartUp = opts.cleanOnStartUp;
+		// app.rpcInvoke 是 bind了rpcClient this的rpcInvoke
 		this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
 	}
 
@@ -62,7 +63,7 @@ class GlobalChannelService
             // no frontend server infos
 			return [];
 		}
-		return await GlobalChannelServiceUtility.RpcInvoke(this.RpcInvokePromise, frontServerId, route, msg, uids);
+		return await RpcInvoke(this.RpcInvokePromise, frontServerId, route, msg, uids);
 	}
 
 	/**
@@ -131,7 +132,7 @@ class GlobalChannelService
 		{
 			if (uidSet.size > 0)
 			{
-				sendMessageArr.push(GlobalChannelServiceUtility.RpcInvoke(this.RpcInvokePromise, sid, route, msg, Array.from(uidSet)));
+				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, Array.from(uidSet)));
 			}
 		}
 		if (sendMessageArr.length > 0)
@@ -171,7 +172,7 @@ class GlobalChannelService
 			const uids = uidObject[sid];
 			if (uids && uids.length > 0)
 			{
-				sendMessageArr.push(GlobalChannelServiceUtility.RpcInvoke(this.RpcInvokePromise, sid, route, msg, uids));
+				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, uids));
 			}
 		}
 		if (sendMessageArr.length > 0)
@@ -365,52 +366,44 @@ class GlobalChannelService
 }
 
 /**
- * @private
+ *
+ * @param app
+ * @param opts
+ * @returns {*}
  */
-class GlobalChannelServiceUtility
+function GetChannelManager(app, opts)
 {
-	/**
-	 *
-	 * @param app
-	 * @param opts
-	 * @returns {*}
-	 */
-	static GetChannelManager(app, opts)
-	{
-		let channelManager;
-		if (typeof opts.channelManager === 'function')
-		{
-			try
-			{
-				channelManager = opts.channelManager(app, opts);
-			}
-			catch (err)
-			{
-				channelManager = new opts.channelManager(app, opts);
-			}
-		}
-		else
-		{
-			channelManager = opts.channelManager;
-		}
+    let channelManager;
+    if (typeof opts.channelManager === 'function')
+    {
+        try
+        {
+            channelManager = opts.channelManager(app, opts);
+        }
+        catch (err)
+        {
+            channelManager = new opts.channelManager(app, opts);
+        }
+    }
+    else
+    {
+        channelManager = opts.channelManager;
+    }
 
-		if (!channelManager)
-		{
-			channelManager = new DefaultChannelManager(app, opts);
-		}
-		return channelManager;
-	}
-
-	static async RpcInvoke(RpcInvokePromise, sid, route, msg, sendUids)
-	{
-		return await RpcInvokePromise(sid,
-			{
-				namespace : 'sys',
-				service   : 'channelRemote',
-				method    : 'pushMessage',
-				args      : [route, msg, sendUids, {isPush: true}]
-			});
-	}
+    if (!channelManager)
+    {
+        channelManager = new DefaultChannelManager(app, opts);
+    }
+    return channelManager;
 }
 
-module.exports = GlobalChannelService;
+async function  RpcInvoke(RpcInvokePromise, sid, route, msg, sendUids)
+{
+    return await RpcInvokePromise(sid,
+    {
+        namespace : 'sys',
+        service   : 'channelRemote',
+        method    : 'pushMessage',
+        args      : [route, msg, sendUids, {isPush: true}]
+    });
+}

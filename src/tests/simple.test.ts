@@ -1,33 +1,55 @@
 
 import  'jest';
-import RedisManager from '../lib/manager/RedisGlobalChannelManager';
+import {default as GlobalChannelManager} from '../lib/manager/RedisGlobalChannelManager';
+import {GlobalChannelServiceStatus} from "../lib/service/GlobalChannelServiceStatus";
 const config = require('./config/redisConfig').redisChannel;
 
 // const test = require('ava').test;
 
-const app:any = {
-    getServersByType(){}
-};
-const redisManager = new RedisManager(app, config);
+
+
 
 const serverType = 'connector';
 const serverId = ['connector_1', 'connector_2', 'connector_3'];
 const serverData = [{id: 'connector_1'}, {id: 'connector_2'}, {id: 'connector_3'}];
 const channelName = ['channelName1', 'channelName2', 'channelName3'];
+const serversValue = {'connector_1':serverData[0],'connector_2':serverData[1],'connector_3':serverData[2]};
+
+const app:any = {
+    getServersByType(serverType){},
+    rpcInvoke(serverId: string, msg: object, cb: Function){
+        console.log('app.rpcInvoke',serverId,msg);
+        cb(null)
+    },
+    isFrontend(server){
+        return true;
+    },
+    getServers(){
+        return serversValue;
+    }
+};
+
+const globalChannel = new GlobalChannelServiceStatus(app,config);
+const redisManager:GlobalChannelManager = (globalChannel as any).manager;
 
 class Test
 {
 
     static async before()
     {
-        await redisManager.start();
+        await new Promise(resolve=>{
+            globalChannel.start(resolve);
+        });
         await redisManager.clean();
     }
 
     static async after()
     {
      //   await redisManager.clean();
-        await redisManager.stop();
+     //   await redisManager.stop();
+        await new Promise(resolve=>{
+            globalChannel.stop(true,resolve);
+        });
     }
 
     static async add()
@@ -74,8 +96,6 @@ class Test
 
 
 
-
-
     static async leaveNoChannel()
     {
         const coArr = [];
@@ -87,22 +107,6 @@ class Test
         console.info('leaveNoChannel',result);
     }
 
-    static async test()
-    {
-        await Test.before();
-        await Test.add();
-        await Test.leave();
-        await Test.addNoChannel();
-        await Test.after();
-    }
-
-    static async globalService()
-    {
-        await Test.before();
-        await Test.addNoChannel();
-        await Test.leaveNoChannel();
-        await Test.after();
-    }
 }
 //Test.test();
 // Test.globalService();
@@ -168,8 +172,68 @@ describe('test channel',()=>{
         expect(JSON.stringify(c3members).indexOf('"uuid_2"')==-1).toBeFalsy();
     });
 
+    // uuid_3  uuid_1 不要用来测试
+    describe('test global channel service',()=>{
+
+        it('test global service',async ()=>{
+           console.log('!! test global service');
+           let val = await globalChannel.leaveStatus('vvvv','whatthefuck');
+           expect(val).toBe(0);
+           val = await globalChannel.addStatus('vvvv','whatthefuck');
+           expect(val).toBe(1);
+            val = await globalChannel.addStatus('vvvv','whatthefuck');
+            expect(val).toBe(0);
+            val = await globalChannel.leaveStatus('vvvv','whatthefuck');
+            expect(val).toBe(1);
+        });
 
 
+        it('test getMembersByChannelNameAndSid',async ()=>{
+            let val = await globalChannel.getMembersByChannelNameAndSid(serverId[0],channelName);
+            expect(Object.keys(val)).toMatchObject(channelName);
+            expect(val[channelName[0]].length).toBeGreaterThan(0);
+
+            val = await globalChannel.getMembersByChannelNameAndSid('noid',channelName);
+            console.log('getMembersByChannelNameAndSid val:',val);
+            expect(Object.keys(val)).toMatchObject(channelName);
+            expect([]).toMatchObject(val[channelName[0]]);
+        });
+
+        it('test destroyChannel',async ()=>{
+            let val = await globalChannel.destroyChannel(channelName[0]);
+            console.log('destroy val:',val);
+            expect(val.length).toBe(3);
+            expect(val).toMatchObject([ 1, 1, 1 ]);
+            val = await globalChannel.destroyChannel(channelName);
+            console.log('destroy val22:',val);
+        });
+
+        it('test add and leave channel',async ()=>{
+            let val = await globalChannel.add('myid',serverId[0],channelName[0]);
+            console.log('!!! myid val:',val);
+            expect(val).toBe(1);
+            val = await globalChannel.add('myid',serverId[0],channelName[0]);
+
+            expect(val).toBe(0);
+            val = await globalChannel.leave('myid1',serverId[0],channelName[0]);
+            expect(val).toBe(0);
+            val = await globalChannel.leave('myid',serverId[0],channelName[0]);
+            expect(val).toBe(1);
+
+            val = await globalChannel.add('myid',serverId[0],channelName);
+            console.log('!!! myid add channels val:',val);
+            expect(val).toMatchObject([1,1,1]);
+            val = await globalChannel.add('myid',serverId[0],channelName);
+            console.log('!!! myid add channels val again:',val);
+            expect(val).toMatchObject([0,0,0]);
+
+            val = await globalChannel.leave('myid',serverId[0],channelName);
+            console.log('!!! myid leave channels val:',val);
+            expect(val).toMatchObject([1,1,1]);
+        });
+
+
+    });
 
 
 });

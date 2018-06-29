@@ -25,7 +25,7 @@ export default class GlobalChannelManager extends StatusChannelManager
         return await StatusChannelManager.ExecMultiCommands(this.redisClient, cmdArr);
 	}
 
-    public async destroyChannel(channelName:string|string[])
+    public async destroyChannel(channelName:string|string[]):Promise<number[]>
 	{
 		if(!channelName){
 			return null;

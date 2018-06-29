@@ -119,7 +119,7 @@ export abstract class StatusChannelManager
 		return await this.redisClient.smembersAsync(genKey);
 	}
 
-    public async getSidsByUidArr(uidArr:string[]):Promise<{[key:string]:string}>
+    public async getSidsByUidArr(uidArr:string[]):Promise<{[key:string]:string[]}>
 	{
 		let serverIdArr;
 		if(!uidArr || !uidArr.length){

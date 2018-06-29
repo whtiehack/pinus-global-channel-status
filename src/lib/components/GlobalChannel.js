@@ -1,6 +1,6 @@
 'use strict';
 
-const ChannelService = require('../service/GlobalChannelService');
+const ChannelService = require('../service/GlobalChannelServiceStatus');
 
 class GlobalChannel
 {

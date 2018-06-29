@@ -19,7 +19,7 @@ const ST_CLOSED = 2;
  */
 export class GlobalChannelServiceStatus
 {
-    manager:DefaultChannelManager;
+    private manager:DefaultChannelManager;
     private cleanOnStartUp:boolean;
     private state:number = ST_INITED;
     public name:string = '__globalChannel__';
@@ -38,7 +38,7 @@ export class GlobalChannelServiceStatus
 	}
 
 	/**
-	 * 发送消息给指定服务器 中的某一些人
+	 * TODO:发送消息给指定服务器 中的某一些人
 	 * @param {String} route route string
 	 * @param {Array} uids userId array
 	 * @param {Object} msg 消息内容
@@ -67,7 +67,7 @@ export class GlobalChannelServiceStatus
 	}
 
 	/**
-	 *  群发消息给玩家
+	 *  TODO:群发消息给玩家
 	 * @param {String|Array} uidArr 要发送的玩家列表
 	 * @param {String} route   消息号
 	 * @param {String} msg    消息内容
@@ -132,27 +132,26 @@ export class GlobalChannelServiceStatus
 		{
 			if (uidSet.size > 0)
 			{
-				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, Array.from(uidSet)));
+				sendMessageArr.push(RpcInvoke(this.RpcInvokePromise, sid, route, msg, uidSet));
 			}
 		}
 		if (sendMessageArr.length > 0)
 		{
-			const failIds = await Promise.all(sendMessageArr);
-			return [...new Set([].concat(...failIds))];
+			return await Promise.all(sendMessageArr);
 		}
 		return null;
 	}
 
 	/**
-     * Send message by global channel.
+     * TODO:Send message by global channel.
      *  发送消息给指定 channelName 的所有玩家
      * @param  {String}   serverType  frontend server type
      * @param  {String}   route       route string
      * @param  {Object}   msg         message would be sent to clients
      * @param  {String}   channelName channel name
-     * @memberOf GlobalChannelService
+     * @memberOf GlobalChannelServiceStatus
      */
-	async pushMessage(serverType, route, msg, channelName)
+	async pushMessageByChannelName(serverType, route, msg, channelName)
 	{
 		if (this.state !== ST_STARTED)
 		{
@@ -184,7 +183,7 @@ export class GlobalChannelServiceStatus
 	}
 
     /**
-     * Get members by channel name.
+     * TODO:Get members by channel name.
      * 获取指定 channelName 和 服务器类型的成员
      * @param  {String}   serverType frontend server type string
      * @param  {String}   channelName channel name
@@ -201,7 +200,7 @@ export class GlobalChannelServiceStatus
 	}
 
     /**
-     * Get members by frontend server id.
+     * TODO:Get members by frontend server id.
      * 获取指定服务器和channelName 的玩家列表
      * @param  {String}   channelName channel name
      * @param  {String}   frontId  frontend server id
@@ -217,11 +216,11 @@ export class GlobalChannelServiceStatus
 	}
 
 	/**
-	 *  获得指定玩家在所在的服务器
+	 *  TODO:获得指定玩家在所在的服务器
 	 * @param uid 要查找的 玩家id
 	 * @returns {Array}
 	 */
-	async getSidsByUid(uid)
+	public async getSidsByUid(uid)
 	{
 		if (this.state !== ST_STARTED)
 		{
@@ -231,11 +230,9 @@ export class GlobalChannelServiceStatus
 	}
 
 	/**
-	 *  获取指定玩家的服务器列表
-	 * @param uidArr 要查找的玩家列表
-	 * @returns {Object}
+	 *  TODO:获取指定玩家的服务器列表
 	 */
-	async getSidsByUidArr(uidArr)
+    public async getSidsByUidArr(uidArr)
 	{
 		if (this.state !== ST_STARTED)
 		{
@@ -301,13 +298,11 @@ export class GlobalChannelServiceStatus
 	}
 
     /**
-     * Destroy a global channel.
-     * @param  {String}  channelName global channel name
-     * @memberOf GlobalChannelService
+     * Destroy  global channel or channels.
      */
-	async destroyChannel(channelName)
+	public async destroyChannel(channelName:string |string[]):Promise<number[]>
     {
-		if ([null, undefined].includes(channelName) || channelName.length <= 0) return;
+		if (!channelName || channelName.length <= 0) return;
 		if (this.state !== ST_STARTED)
 		{
 			throw new Error('invalid state');
@@ -316,14 +311,14 @@ export class GlobalChannelServiceStatus
 	}
 
 	/**
-	 * 添加一个玩家 到指定channelName
+	 * TODOx:添加一个玩家 到指定channelName
 	 * Add a member into channel.
 	 * @param {String} uid  user id
 	 * @param {String} sid  frontend server id
 	 * @param {String | Array} channelName  指定的 channelName
 	 * @returns {number} is add: 1 add success, 0 fail
 	 */
-	async add(uid, sid, channelName = null)
+	public async add(uid:string, sid:string, channelName:string|string[]):Promise<number|number[]>
 	{
 		if (this.state !== ST_STARTED)
 		{
@@ -333,14 +328,27 @@ export class GlobalChannelServiceStatus
 	}
 
     /**
-     * Remove user from channel.
-     * 移除一个玩家
-     * @param  {String}   uid  user id
-     * @param  {String}   sid  frontend server id
-     * @param  {String | Array}   channelName channel name
-     * @memberOf GlobalChannelService
+	 * 加入 status
+     * @param {string} uid
+     * @param {string} sid
+     * @returns {Promise<number>}
      */
-	async leave(uid, sid, channelName = null)
+	public async addStatus(uid:string,sid:string):Promise<number>{
+        if (this.state !== ST_STARTED)
+        {
+            throw new Error('invalid state');
+        }
+        return await this.manager.add(uid, sid);
+	}
+
+    /**
+	 * 指定channel 移除一个玩家
+     * @param uid
+     * @param sid
+     * @param {string | string[]} channelName
+     * @returns {Promise<number[]>}
+     */
+	public async leave(uid, sid, channelName:string|string[]):Promise<number|number[]>
     {
 		if (this.state !== ST_STARTED)
 		{
@@ -349,13 +357,27 @@ export class GlobalChannelServiceStatus
 		return await this.manager.leave(uid, sid, channelName);
 	}
 
-	/**
-	 *  通过 服务器ID(sid) 和 指定的 channel 获取玩家列表
-	 * @param {string} sid
-	 * @param channelName
-	 * @return {Promise.<void>}
-	 */
-	async getMembersByChannelNameAndSid(sid, channelName)
+    /**
+	 * 离开 status 一般下线调用
+     * @param {string} uid
+     * @param {string} sid
+     * @returns {Promise<number>}
+     */
+	public async leaveStatus(uid:string,sid:string):Promise<number>{
+        if (this.state !== ST_STARTED)
+        {
+            throw new Error('invalid state');
+        }
+		return this.manager.leave(uid,sid);
+	}
+
+    /**
+	 * 	通过 服务器ID(sid) 和 指定的 channel 获取玩家列表
+     * @param {string} sid
+     * @param {string | string[]} channelName
+     * @returns {Promise<{[channelName: string]: string[]}>} key是 channelname example: { channelName1: [ 'uuid_18', 'uuid_3' ] }
+     */
+	public async getMembersByChannelNameAndSid(sid:string, channelName:string|string[]):Promise<{[channelName: string]: string[]}>
 	{
 		if (this.state !== ST_STARTED)
 		{

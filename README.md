@@ -2,7 +2,7 @@
 
 - only node version 8.x or greater support
 - TS => es2017 语法
-- 兼容 pomelo2.x 系列
+- 兼容 pomelo
 - 兼容 pinus
 - 内置 redis使用
 - 发送消息给某一个或多个玩家

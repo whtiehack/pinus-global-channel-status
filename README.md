@@ -37,6 +37,7 @@ app.configure('production|development', 'connector', function () {
         family   : 4,           // 4 (IPv4) or 6 (IPv6)
         options  : {},
         host     : '192.168.99.100',
+        password : null,
         port     : 6379,
         db       : 10      // optinal, from 0 to 15 with default redis configure
     });
@@ -59,6 +60,7 @@ var globalChannelStatus = require('pinus-global-channel-status').PomeloExports;
 app.use(globalChannelStatus, {globalChannelStatus: {
   host: '127.0.0.1',
   port: 6379,
+  password : null,
   db: '0'       // optinal, from 0 to 15 with default redis configure
 }});
 

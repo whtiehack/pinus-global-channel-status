@@ -2,7 +2,7 @@
  * Created by frank on 16-11-4.
  */
 
-const envHost = process.env.REDISHOST;
+const envHost = process.env.REDIS_HOST;
 module.exports.redisChannel =
     {
         family   : 4,           // 4 (IPv4) or 6 (IPv6)

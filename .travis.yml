@@ -1,13 +1,8 @@
-
-
 language: node_js
 node_js:
   - "8"
-
 services:
   - redis-server --port 6379
-
 install: npm install --dev
-
 script: rm -rf ./dist && npm run test
 

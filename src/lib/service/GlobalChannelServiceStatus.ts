@@ -19,6 +19,7 @@ const ST_CLOSED = 2;
  */
 export class GlobalChannelServiceStatus
 {
+    public static  PLUGIN_NAME = 'globalChannelServiceStatus';
     private manager:DefaultChannelManager;
     private cleanOnStartUp:boolean;
     private state:number = ST_INITED;
@@ -34,7 +35,7 @@ export class GlobalChannelServiceStatus
 		this.manager = GetChannelManager(app, opts);
 		this.cleanOnStartUp = opts.cleanOnStartUp;
 		// app.rpcInvoke 是 bind了rpcClient this的rpcInvoke
-
+        app.set(GlobalChannelServiceStatus.PLUGIN_NAME, this, true);
 	}
 
     /**

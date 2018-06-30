@@ -267,7 +267,7 @@ describe('test channel',()=>{
             expect(nVal).toBe(1);
 
             val = await globalChannel.getSidsByUid('!!id');
-            expect(val).toMatchObject(['ss2','ss1']);
+            expect(val.sort()).toMatchObject(['ss2','ss1'].sort());
 
             nVal = await globalChannel.leaveStatus('!!id','ss1');
             expect(nVal).toBe(1);

@@ -29,8 +29,28 @@ npm install https://github.com/whtiehack/pinus-global-channel-status.git#v8
 ### pinus 
 
 ```
+import {createGlobalChannelStatusPlugin} from 'pinus-global-channel-status';
+
+app.configure('production|development', 'connector', function () {
+    ...
+    app.use(createGlobalChannelStatusPlugin(),{
+        family   : 4,           // 4 (IPv4) or 6 (IPv6)
+        options  : {},
+        host     : '192.168.99.100',
+        port     : 6379,
+        db       : 10      // optinal, from 0 to 15 with default redis configure
+    });
+});
 
 ```
+
+---
+* use
+```
+const globalChannelStatus:GlobalChannelServiceStatus = app.get(GlobalChannelServiceStatus.PLUGIN_NAME);
+
+```
+
 
 ### pomelo
 ```
@@ -41,5 +61,18 @@ app.use(globalChannelStatus, {globalChannelStatus: {
   port: 6379,
   db: '0'       // optinal, from 0 to 15 with default redis configure
 }});
+
+```
+
+
+---
+* use
+```
+
+const globalChannelStatus = app.get('globalChannelServiceStatus');
+
+or
+const GlobalChannelServiceStatus = require('pinus-global-channel-status').GlobalChannelServiceStatus;
+const globalChannelStatus = app.get(GlobalChannelServiceStatus.PLUGIN_NAME);
 
 ```

@@ -23,7 +23,7 @@ export class GlobalChannelServiceStatus
     private cleanOnStartUp:boolean;
     private state:number = ST_INITED;
     public name:string = '__globalChannelStatus__';
-    private readonly RpcInvokePromise = null;
+    private RpcInvokePromise = null;
 	/**
 	 * 构造函数
 	 * @param {*} app pomelo instance
@@ -34,9 +34,20 @@ export class GlobalChannelServiceStatus
 		this.manager = GetChannelManager(app, opts);
 		this.cleanOnStartUp = opts.cleanOnStartUp;
 		// app.rpcInvoke 是 bind了rpcClient this的rpcInvoke
-		this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
+
 	}
 
+    /**
+     * Component lifecycle callback
+     *
+     * @param {Function} cb
+     * @return {Void}
+     */
+    afterStart(cb: () => void){
+    	console.log('GlobalChannelServiceStatus after startup');
+        this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
+        cb();
+	};
 	/**
 	 * TODO:发送消息给指定服务器 中的某一些人
 	 * @param {String} route route string
@@ -220,6 +231,11 @@ export class GlobalChannelServiceStatus
 
 	start(cb)
 	{
+		if(process.env.NODE_ENV=='ci'){
+			this.afterStart(()=>{
+
+			});
+		}
 		if (this.state !== ST_INITED)
 		{
 			utils.InvokeCallback(cb, new Error('invalid state'));

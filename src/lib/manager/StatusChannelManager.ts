@@ -37,7 +37,11 @@ export abstract class StatusChannelManager
 	{
 		return new Promise((resolve, reject) =>
 		{
-			const redisClient = redisClass.createClient(this.opts);
+			let config = this.opts;
+			if(process.env.NODE_ENV=='ci'){
+				config =  "redis://127.0.0.1:6379" as any;
+			}
+			const redisClient = redisClass.createClient(config);
 			redisClient.on('error', err =>
 			{
 				console.error('redis error',err);

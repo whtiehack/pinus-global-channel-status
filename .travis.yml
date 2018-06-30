@@ -1,9 +1,12 @@
 language: node_js
 sudo: required
+dist: trusty
 node_js:
   - "8"
 services:
   - redis-server
+env:
+  - NODE_ENV=ci
+
 install: npm install --dev
 script: rm -rf ./dist && npm run test
-

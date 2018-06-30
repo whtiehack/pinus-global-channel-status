@@ -43,10 +43,9 @@ export class GlobalChannelServiceStatus
      * @param {Function} cb
      * @return {Void}
      */
-    afterStart(cb: () => void){
+    afterStartAll(){
     	console.log('GlobalChannelServiceStatus after startup');
         this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
-        cb();
 	};
 	/**
 	 * TODO:发送消息给指定服务器 中的某一些人
@@ -232,9 +231,7 @@ export class GlobalChannelServiceStatus
 	start(cb)
 	{
 		if(process.env.NODE_ENV=='ci'){
-			this.afterStart(()=>{
-
-			});
+			this.afterStartAll();
 		}
 		if (this.state !== ST_INITED)
 		{

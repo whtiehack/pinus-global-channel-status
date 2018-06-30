@@ -345,6 +345,9 @@ describe('test channel',()=>{
             let members = await globalChannel.getMembersBySid(channelName[0],serverId[0]);
             for(const uuid of members){
                 const ret = await globalChannel.addStatus(uuid,serverId[0]);
+                if(ret!=1){
+                    console.error('pushMessageByUids  err:',ret,uuid,'members:',members);
+                }
                 expect(ret).toBe(1);
             }
             val = await globalChannel.pushMessageByUids(members,'route pushMessageByUids','msg pushMessageByUids');

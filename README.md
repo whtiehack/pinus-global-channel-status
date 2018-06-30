@@ -1,3 +1,7 @@
+# pinusGlobalChannelStatus  [![Build Status](https://travis-ci.org/whtiehack/pinus-global-channel-status.svg?branch=v8)](https://travis-ci.org/whtiehack/pinus-global-channel-status)
+pinus 分布式服务器通讯 原址：https://github.com/frank198/pomeloGlobalChannel
+
+
 # 使用说明
 
 - only node version 8.x or greater support
@@ -12,8 +16,6 @@
 
 
 
-# pinusGlobalChannelStatus
-pinus 分布式服务器通讯 原址：https://github.com/frank198/pomeloGlobalChannel
 
 ## Installation
 

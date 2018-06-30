@@ -9,5 +9,5 @@ services:
 
 install: npm install --dev
 
-script: npm run test
+script: rm -rf ./dist && npm run test
 

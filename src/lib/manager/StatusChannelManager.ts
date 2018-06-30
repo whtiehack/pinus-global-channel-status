@@ -40,6 +40,7 @@ export abstract class StatusChannelManager
 			const redisClient = redisClass.createClient(this.opts);
 			redisClient.on('error', err =>
 			{
+				console.error('redis error',err);
 				// throw new Error(`[globalChannel][redis errorEvent]err:${err.stack}`);
 				return reject(`[globalChannel][redis errorEvent]err:${err.stack}`);
 			});
@@ -48,8 +49,10 @@ export abstract class StatusChannelManager
 			{
 				if (err)
 				{
+                    console.error('redis ready error',err);
 					return reject(`[globalChannel][redis readyEvents]err:${err.stack}`);
 				}
+				console.log('redis create success');
 				this.redisClient = redisClient;
 				return resolve();
 			});

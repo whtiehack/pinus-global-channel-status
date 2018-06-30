@@ -9,5 +9,5 @@ module.exports.redisChannel =
         options  : {},
         host     : envHost?envHost:'192.168.99.100',
         port     : 6379,
-        db       : 10      // optinal, from 0 to 15 with default redis configure
+        db       : envHost?0:10      // optinal, from 0 to 15 with default redis configure
     };

@@ -44,10 +44,18 @@ export class GlobalChannelServiceStatus
      * @param {Function} cb
      * @return {Void}
      */
-    afterStartAll(){
-    	console.log('GlobalChannelServiceStatus after startup');
-        this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
+    afterStart(){
+    	if(this.app.components && this.app.components.__proxy__ &&
+			this.app.components.__proxy__.client&& this.app.components.__proxy__.client.rpcInvoke){
+            this.RpcInvokePromise = util.promisify(this.app.components.__proxy__.client.rpcInvoke.bind(this.app.components.__proxy__.client));
+		}
 	};
+
+    afterStartAll(){
+    	if(!this.RpcInvokePromise){
+            this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
+		}
+	}
 	/**
 	 * TODO:发送消息给指定服务器 中的某一些人
 	 * @param {String} route route string

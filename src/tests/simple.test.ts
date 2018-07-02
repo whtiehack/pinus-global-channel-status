@@ -28,7 +28,8 @@ const app:any = {
     },
     getServers(){
         return serversValue;
-    }
+    },
+    set(){}
 };
 
 const globalChannel = new GlobalChannelServiceStatus(app,config);
@@ -116,6 +117,7 @@ class Test
 describe('test channel',()=>{
     beforeAll(async ()=>{
         await Test.before();
+        globalChannel.afterStartAll();
         await Test.add();
     });
 

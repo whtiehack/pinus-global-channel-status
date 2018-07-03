@@ -44,11 +44,12 @@ export class GlobalChannelServiceStatus
      * @param {Function} cb
      * @return {Void}
      */
-    afterStart(){
+    afterStart(cb ?: (err?: Error) => void){
     	if(this.app.components && this.app.components.__proxy__ &&
 			this.app.components.__proxy__.client&& this.app.components.__proxy__.client.rpcInvoke){
             this.RpcInvokePromise = util.promisify(this.app.components.__proxy__.client.rpcInvoke.bind(this.app.components.__proxy__.client));
 		}
+        cb();
 	};
 
     afterStartAll(){

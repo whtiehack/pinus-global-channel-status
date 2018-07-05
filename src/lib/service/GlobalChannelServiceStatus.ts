@@ -264,6 +264,7 @@ export class GlobalChannelServiceStatus
 					{
 						utils.InvokeCallback(cb, null);
 					}
+					return null;
 				})
 				.catch(err =>
 				{

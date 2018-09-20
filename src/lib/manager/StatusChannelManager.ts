@@ -40,7 +40,7 @@ export abstract class StatusChannelManager
 			let config = this.opts;
 			if(process.env.NODE_ENV=='ci'){
 				config =  "redis://127.0.0.1:6379" as any;
-			}else if(process.env.NODE_ENV=='ci'){
+			}else if(process.env.NODE_ENV=='gitlab'){
 				config =  "redis://redis:6379" as any;
 			}
 			const redisClient = redisClass.createClient(config);

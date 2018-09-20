@@ -19,7 +19,7 @@ cache:
 
 test_async:
   variables:
-    NODE_ENV: ci
+    NODE_ENV: gitlab
 
   script:
   - npm install --dev

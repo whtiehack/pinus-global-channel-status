@@ -21,6 +21,10 @@ pinus 分布式服务器通讯 原址：https://github.com/frank198/pomeloGlobal
 
 ```
 npm install https://github.com/whtiehack/pinus-global-channel-status.git#v8
+
+or
+
+npm install pinus-global-channel-status
 ```
 
 ## Usage

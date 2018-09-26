@@ -31,7 +31,8 @@ const app:any = {
     },
     set(){}
 };
-
+config.channelPrefix = 'TEST:CHANNEL';
+config.statusPrefix = 'TEST:STATUS';
 const globalChannel = new GlobalChannelServiceStatus(app,config);
 const redisManager:GlobalChannelManager = (globalChannel as any).manager;
 

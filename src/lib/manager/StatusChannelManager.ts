@@ -7,7 +7,7 @@ const DEFAULT_PREFIX = 'PINUS:CHANNEL';
 const STATUS_PREFIX = 'PINUS:STATUS';
 export interface PinusGlobalChannelStatusOptions {
 	// channel 前缀
-    prefix?:string;
+    channelPrefix?:string;
     // status 前缀
     statusPrefix?:string;
     auth_pass?:string;
@@ -24,7 +24,7 @@ export abstract class StatusChannelManager
     protected redisClient:any = null;
     protected constructor(protected app:any, protected opts:PinusGlobalChannelStatusOptions = {} as any)
 	{
-		this.prefix = opts.prefix || DEFAULT_PREFIX;
+		this.prefix = opts.channelPrefix || DEFAULT_PREFIX;
 		this.statusPrefix = opts.statusPrefix || STATUS_PREFIX;
 		if (this.opts.auth_pass)
 		{

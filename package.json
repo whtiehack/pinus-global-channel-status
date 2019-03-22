@@ -6,7 +6,7 @@
   "types": "./src/index",
   "dependencies": {
     "redis": "^2.7.1",
-    "typescript": "^2.9.2"
+    "typescript": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "23.1.3",

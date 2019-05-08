@@ -52,6 +52,7 @@ app.configure('production|development', 'connector', function () {
 ---
 * use
 ```
+import { GlobalChannelServiceStatus } from "pinus-global-channel-status";
 const globalChannelStatus:GlobalChannelServiceStatus = app.get(GlobalChannelServiceStatus.PLUGIN_NAME);
 
 ```

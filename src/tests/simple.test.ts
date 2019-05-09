@@ -1,6 +1,6 @@
 import 'jest';
-import {default as GlobalChannelManager} from '../lib/manager/RedisGlobalChannelManager';
-import {GlobalChannelServiceStatus} from "../lib/service/GlobalChannelServiceStatus";
+import { default as GlobalChannelManager } from '../lib/manager/RedisGlobalChannelManager';
+import { GlobalChannelServiceStatus } from "../lib/service/GlobalChannelServiceStatus";
 
 const config = require('./config/redisConfig').redisChannel;
 
@@ -9,13 +9,16 @@ const config = require('./config/redisConfig').redisChannel;
 
 const serverType = 'connector';
 const serverId = ['connector_1', 'connector_2', 'connector_3'];
-const serverData = [{id: 'connector_1'}, {id: 'connector_2'}, {id: 'connector_3'}];
+const serverData = [{ id: 'connector_1' }, { id: 'connector_2' }, { id: 'connector_3' }];
 const channelName = ['channelName1', 'channelName2', 'channelName3'];
-const serversValue = {'connector_1': serverData[0], 'connector_2': serverData[1], 'connector_3': serverData[2]};
+const serversValue = { 'connector_1': serverData[0], 'connector_2': serverData[1], 'connector_3': serverData[2] };
 
 const app: any = {
     getServersByType(serverType) {
         return serverData;
+    },
+    getServerType() {
+        return "";
     },
     rpcInvoke(serverId: string, msg: object, cb: Function) {
         console.log('app.rpcInvoke', serverId, msg);
@@ -284,9 +287,9 @@ describe('test channel', () => {
             console.log('!! getMembersByChannelName val', val);
             expect(Object.keys(val)).toMatchObject(serverId);
             expect(val).toMatchObject({
-                connector_1: {failedChannel: []},
-                connector_2: {failedChannel: []},
-                connector_3: {failedChannel: []}
+                connector_1: { failedChannel: [] },
+                connector_2: { failedChannel: [] },
+                connector_3: { failedChannel: [] }
             });
 
             await globalChannel.add('@2uid', serverId[0], '@2channel');
@@ -295,9 +298,9 @@ describe('test channel', () => {
             expect(Object.keys(val)).toMatchObject(serverId);
 
             expect(val).toMatchObject({
-                connector_1: {'@2channel': ['@2uid'], '@222channel': []},
-                connector_2: {'@2channel': [], '@222channel': []},
-                connector_3: {'@2channel': [], '@222channel': []}
+                connector_1: { '@2channel': ['@2uid'], '@222channel': [] },
+                connector_2: { '@2channel': [], '@222channel': [] },
+                connector_3: { '@2channel': [], '@222channel': [] }
             });
 
 
@@ -331,7 +334,6 @@ describe('test channel', () => {
         });
 
         it('test service pushMessageByUids', async () => {
-
             let val = await globalChannel.pushMessageByUids(['sss', 'ggg'], 'route pushMessageByUids', 'msg pushMessageByUids');
             expect(val).toBe(null);
 

@@ -7,14 +7,14 @@ promisifyAll(redisClass.Multi.prototype);
 const DEFAULT_PREFIX = 'PINUS:CHANNEL';
 const STATUS_PREFIX = 'PINUS:STATUS';
 
-export interface PinusGlobalChannelStatusOptions {
+export interface PinusGlobalChannelStatusOptions extends redisClass.ClientOpts {
     // channel 前缀
     channelPrefix?: string;
     // status 前缀
     statusPrefix?: string;
     auth_pass?: string;
     password?: string;
-    // 启动时候清除
+    // 启动时候清除  建议对 connector 设置成启动时清除
     cleanOnStartUp?: boolean;
 }
 
@@ -76,6 +76,7 @@ export abstract class StatusChannelManager {
         let result = await this.redisClient.keysAsync(cleanKey);
         const cmdArr = [];
         if (Array.isArray(result) && result.length > 0) {
+            console.log("clean channel",result)
             for (const value of result) {
                 cmdArr.push(['del', value]);
             }
@@ -83,6 +84,7 @@ export abstract class StatusChannelManager {
         cleanKey = StatusChannelManager.GenCleanKey(this.statusPrefix);
         result = await this.redisClient.keysAsync(cleanKey);
         if (Array.isArray(result) && result.length > 0) {
+            console.log("clean status",result)
             for (const value of result) {
                 cmdArr.push(['del', value]);
             }

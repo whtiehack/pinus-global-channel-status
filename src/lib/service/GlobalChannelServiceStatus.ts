@@ -3,7 +3,7 @@ import utils from '../util/Utils';
 import * as util from 'util';
 
 import DefaultChannelManager from '../manager/RedisGlobalChannelManager';
-import {PinusGlobalChannelStatusOptions} from "../manager/StatusChannelManager";
+import { PinusGlobalChannelStatusOptions } from "../manager/StatusChannelManager";
 
 const ST_INITED = 0;
 const ST_STARTED = 1;
@@ -31,6 +31,9 @@ export class GlobalChannelServiceStatus {
      * @param {Object} opts 参数列表
      */
     constructor(private app, private opts: PinusGlobalChannelStatusOptions = {}) {
+        if (app.getServerType() == 'master') {
+            return
+        }
         this.manager = GetChannelManager(app, opts);
         this.cleanOnStartUp = opts.cleanOnStartUp;
         // app.rpcInvoke 是 bind了rpcClient this的rpcInvoke
@@ -44,6 +47,9 @@ export class GlobalChannelServiceStatus {
      * @return {Void}
      */
     afterStart(cb ?: (err?: Error) => void) {
+        if (this.app.getServerType() == 'master') {
+            return
+        }
         if (this.app.components && this.app.components.__proxy__ &&
             this.app.components.__proxy__.client && this.app.components.__proxy__.client.rpcInvoke) {
             this.RpcInvokePromise = util.promisify(this.app.components.__proxy__.client.rpcInvoke.bind(this.app.components.__proxy__.client));
@@ -52,6 +58,9 @@ export class GlobalChannelServiceStatus {
     };
 
     afterStartAll() {
+        if (this.app.getServerType() == 'master') {
+            return
+        }
         if (!this.RpcInvokePromise) {
             this.RpcInvokePromise = util.promisify(this.app.rpcInvoke);
         }
@@ -106,8 +115,7 @@ export class GlobalChannelServiceStatus {
                 for (const serverId of sids) {
                     if (records[serverId]) {
                         uidSet = records[serverId];
-                    }
-                    else {
+                    } else {
                         uidSet = [];
                         records[serverId] = uidSet;
                     }
@@ -236,8 +244,7 @@ export class GlobalChannelServiceStatus {
                             .catch(err => {
                                 utils.InvokeCallback(cb, err);
                             });
-                    }
-                    else {
+                    } else {
                         utils.InvokeCallback(cb, null);
                     }
                     return null;
@@ -245,8 +252,7 @@ export class GlobalChannelServiceStatus {
                 .catch(err => {
                     utils.InvokeCallback(cb, err);
                 });
-        }
-        else {
+        } else {
             process.nextTick(() => {
                 utils.InvokeCallback(cb);
             });
@@ -263,8 +269,7 @@ export class GlobalChannelServiceStatus {
                 .catch(err => {
                     utils.InvokeCallback(cb, err);
                 });
-        }
-        else {
+        } else {
             process.nextTick(() => {
                 utils.InvokeCallback(cb);
             });
@@ -362,12 +367,10 @@ function GetChannelManager(app, opts) {
     if (typeof opts.channelManager === 'function') {
         try {
             channelManager = opts.channelManager(app, opts);
-        }
-        catch (err) {
+        } catch (err) {
             channelManager = new opts.channelManager(app, opts);
         }
-    }
-    else {
+    } else {
         channelManager = opts.channelManager;
     }
 
@@ -383,6 +386,6 @@ async function RpcInvoke(RpcInvokePromise, sid: string, route: string, msg: any,
             namespace: 'sys',
             service: 'channelRemote',
             method: 'pushMessage',
-            args: [route, msg, sendUids, {isPush: true}]
+            args: [route, msg, sendUids, { isPush: true }]
         });
 }

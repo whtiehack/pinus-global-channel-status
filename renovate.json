@@ -1,0 +1,3 @@
+{ "includeForks": true, "baseBranches":["v8"], "extends": [
+    "config:base"
+  ]}

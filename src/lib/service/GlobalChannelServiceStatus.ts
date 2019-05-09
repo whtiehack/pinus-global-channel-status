@@ -225,6 +225,9 @@ export class GlobalChannelServiceStatus {
     }
 
     start(cb) {
+        if (this.app.getServerType() == 'master') {
+            return
+        }
         if (process.env.NODE_ENV == 'ci') {
             this.afterStartAll();
         }

@@ -1,24 +1,20 @@
-
-module.exports =  {
-    "transform": {
-        "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "node"
+module.exports = {
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
+    moduleFileExtensions: [
+        'js',
+        'json',
+        'jsx',
+        'node',
+        'ts',
+        'tsx',
     ],
-    globals:{
-        'ts-jest':{
-            // 有ts错误 测试就执行失败
-            //    enableTsDiagnostics:true
-            "tsConfigFile": "./tsconfig.json"
-        }
+    globals: {
+        'ts-jest': {
+            tsConfig: './tsconfig.json',
+        },
     },
-    restoreMocks:true,
-    "testEnvironment": "node"
-};
+    restoreMocks: true,
+    testEnvironment: 'node',
+    preset: 'ts-jest',
+    testMatch: null,
+}

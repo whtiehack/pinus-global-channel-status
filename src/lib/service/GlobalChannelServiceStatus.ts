@@ -48,6 +48,9 @@ export class GlobalChannelServiceStatus {
      */
     afterStart(cb ?: (err?: Error) => void) {
         if (this.app.getServerType() == 'master') {
+            process.nextTick(() => {
+                utils.InvokeCallback(cb);
+            });
             return
         }
         if (this.app.components && this.app.components.__proxy__ &&
@@ -226,6 +229,9 @@ export class GlobalChannelServiceStatus {
 
     start(cb) {
         if (this.app.getServerType() == 'master') {
+            process.nextTick(() => {
+                utils.InvokeCallback(cb);
+            });
             return
         }
         if (process.env.NODE_ENV == 'ci') {
@@ -263,6 +269,12 @@ export class GlobalChannelServiceStatus {
     }
 
     stop(force, cb) {
+        if (this.app.getServerType() == 'master') {
+            process.nextTick(() => {
+                utils.InvokeCallback(cb);
+            });
+            return
+        }
         this.state = ST_CLOSED;
         if (typeof this.manager.stop === 'function') {
             this.manager.stop(force)

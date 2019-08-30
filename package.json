@@ -1,6 +1,6 @@
 {
   "name": "pinus-global-channel-status",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "private": false,
   "main": "./dist/index",
   "types": "./src/index",
@@ -20,7 +20,7 @@
     "node": ">=8.5"
   },
   "scripts": {
-    "install": "node_modules/.bin/tsc",
-    "test": "node_modules/.bin/jest"
+    "install": "./node_modules/.bin/tsc",
+    "test": "./node_modules/.bin/jest"
   }
 }

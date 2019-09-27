@@ -11,7 +11,7 @@
   "devDependencies": {
     "@types/jest": "24.0.18",
     "@types/node": "10.14.19",
-    "@types/redis": "2.8.13",
+    "@types/redis": "2.8.14",
     "jest": "24.8.0",
     "ts-jest": "24.1.0",
     "ts-node": "8.4.1"

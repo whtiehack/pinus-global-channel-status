@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/jest": "24.0.21",
-    "@types/node": "10.17.2",
+    "@types/node": "10.17.3",
     "@types/redis": "2.8.14",
     "jest": "24.8.0",
     "ts-jest": "24.1.0",

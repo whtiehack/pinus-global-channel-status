@@ -1,6 +1,6 @@
 {
   "name": "pinus-global-channel-status",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "private": false,
   "main": "./dist/index",
   "types": "./src/index",
@@ -16,6 +16,16 @@
     "ts-jest": "24.1.0",
     "ts-node": "8.5.2"
   },
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.*",
+    ".gitignore",
+    "jest.config.js",
+    "package.json",
+    "README.md",
+    "tsconfig.json",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=8.5"
   },

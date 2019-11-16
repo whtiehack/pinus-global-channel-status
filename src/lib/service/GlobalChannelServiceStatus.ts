@@ -299,7 +299,7 @@ export class GlobalChannelServiceStatus {
         if (this.state !== ST_STARTED) {
             throw new Error('invalid state');
         }
-        return await this.manager.destroyChannel(channelName);
+        return this.manager.destroyChannel(channelName);
     }
 
     /**
@@ -314,7 +314,14 @@ export class GlobalChannelServiceStatus {
         if (this.state !== ST_STARTED) {
             throw new Error('invalid state');
         }
-        return await this.manager.add(uid, sid, channelName);
+        return this.manager.add(uid, sid, channelName);
+    }
+
+    /**
+     * 获取 status 数量
+     */
+    public async getCountStatus() {
+        return this.manager.statusCount()
     }
 
     /**
@@ -327,7 +334,7 @@ export class GlobalChannelServiceStatus {
         if (this.state !== ST_STARTED) {
             throw new Error('invalid state');
         }
-        return await this.manager.add(uid, sid);
+        return this.manager.add(uid, sid);
     }
 
     /**
@@ -341,7 +348,7 @@ export class GlobalChannelServiceStatus {
         if (this.state !== ST_STARTED) {
             throw new Error('invalid state');
         }
-        return await this.manager.leave(uid, sid, channelName);
+        return this.manager.leave(uid, sid, channelName);
     }
 
     /**
@@ -367,7 +374,7 @@ export class GlobalChannelServiceStatus {
         if (this.state !== ST_STARTED) {
             throw new Error('invalid state');
         }
-        return await this.manager.getMembersByChannelNameAndSid(sid, channelName);
+        return this.manager.getMembersByChannelNameAndSid(sid, channelName);
     }
 }
 

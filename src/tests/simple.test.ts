@@ -35,6 +35,7 @@ const app: any = {
 };
 config.channelPrefix = 'TEST:CHANNEL';
 config.statusPrefix = 'TEST:STATUS';
+config.cleanOnStartUp = true;
 const globalChannel = new GlobalChannelServiceStatus(app, config);
 const redisManager: GlobalChannelManager = (globalChannel as any).manager;
 
@@ -59,7 +60,7 @@ class Test {
         const coArr = [];
         for (let i = 0; i < 50; i++) {
             const index = Test.random(0, serverId.length - 1);
-            coArr.push(redisManager.add(`uuid_${i}`, serverId[index], channelName[i % 3]));
+            coArr.push(redisManager.add(`uuid_${ i }`, serverId[index], channelName[i % 3]));
         }
         const result = await Promise.all(coArr);
         console.info('test.add', JSON.stringify(result));
@@ -84,7 +85,7 @@ class Test {
         const coArr = [];
         for (let i = 0; i < 10; i++) {
             const index = Test.random(0, serverId.length - 1);
-            coArr.push(redisManager.add(`uuid_${i}`, serverId[index]));
+            coArr.push(redisManager.add(`uuid_${ i }`, serverId[index]));
         }
         const result = await Promise.all(coArr);
         console.info('test.addNoChannel', result);
@@ -106,11 +107,16 @@ class Test {
 // Test.globalService();
 
 describe('test channel', () => {
-    beforeAll(async () => {
-        await Test.before();
-        globalChannel.afterStartAll();
-        await Test.add();
-    });
+    beforeAll((done) => {
+        let f = async () => {
+            await Test.before();
+            globalChannel.afterStartAll();
+            await Test.add();
+            console.log('before all success');
+            done()
+        };
+        f()
+    }, 3000);
 
     afterAll(async () => {
         console.log('clean test data');
@@ -118,7 +124,13 @@ describe('test channel', () => {
     });
 
     test('test globalService', async () => {
+        let count = await globalChannel.getCountStatus();
+        console.log(' status count:', count);
+        expect(count).toBe(0);
         await Test.addNoChannel();
+        count = await globalChannel.getCountStatus();
+        console.log(' status count:', count);
+        expect(count).toBe(10);
         const members = await redisManager.getSidsByUid('uuid_3');
         console.info('test.getSidsByUid', members);
 
@@ -334,6 +346,8 @@ describe('test channel', () => {
         });
 
         it('test service pushMessageByUids', async () => {
+            await redisManager.clean();
+            await Test.add();
             let val = await globalChannel.pushMessageByUids(['sss', 'ggg'], 'route pushMessageByUids', 'msg pushMessageByUids');
             expect(val).toBe(null);
 

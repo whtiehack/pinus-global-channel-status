@@ -1,7 +1,7 @@
 'use strict';
 
 
-import {PinusGlobalChannelStatusOptions, StatusChannelManager} from "./StatusChannelManager";
+import { PinusGlobalChannelStatusOptions, StatusChannelManager } from "./StatusChannelManager";
 
 export default class GlobalChannelManager extends StatusChannelManager {
     constructor(app, opts: PinusGlobalChannelStatusOptions) {

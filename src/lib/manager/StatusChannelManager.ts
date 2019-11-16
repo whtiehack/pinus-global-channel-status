@@ -22,11 +22,13 @@ export interface PinusGlobalChannelStatusOptions extends redisClass.ClientOpts {
 export abstract class StatusChannelManager {
     protected readonly prefix: string;
     private readonly statusPrefix: string;
+    private readonly statusPrefixKeys: string;
     protected redisClient: any = null;
 
     protected constructor(protected app: any, protected opts: PinusGlobalChannelStatusOptions = {} as any) {
         this.prefix = opts.channelPrefix || DEFAULT_PREFIX;
         this.statusPrefix = opts.statusPrefix || STATUS_PREFIX;
+        this.statusPrefixKeys = this.statusPrefix + ":*";
         if (this.opts.auth_pass) {
             this.opts.password = this.opts.auth_pass;
             delete this.opts.auth_pass;
@@ -45,13 +47,13 @@ export abstract class StatusChannelManager {
             redisClient.on('error', err => {
                 console.error('redis error', err);
                 // throw new Error(`[globalChannel][redis errorEvent]err:${err.stack}`);
-                return reject(`[globalChannel][redis errorEvent]err:${err.stack}`);
+                return reject(`[globalChannel][redis errorEvent]err:${ err.stack }`);
             });
 
             redisClient.on('ready', err => {
                 if (err) {
                     console.error('redis ready error', err);
-                    return reject(`[globalChannel][redis readyEvents]err:${err.stack}`);
+                    return reject(`[globalChannel][redis readyEvents]err:${ err.stack }`);
                 }
                 console.log('redis create success');
                 this.redisClient = redisClient;
@@ -76,7 +78,7 @@ export abstract class StatusChannelManager {
         let result = await this.redisClient.keysAsync(cleanKey);
         const cmdArr = [];
         if (Array.isArray(result) && result.length > 0) {
-            console.log("clean channel",result)
+            console.log("clean channel", result)
             for (const value of result) {
                 cmdArr.push(['del', value]);
             }
@@ -84,7 +86,7 @@ export abstract class StatusChannelManager {
         cleanKey = StatusChannelManager.GenCleanKey(this.statusPrefix);
         result = await this.redisClient.keysAsync(cleanKey);
         if (Array.isArray(result) && result.length > 0) {
-            console.log("clean status",result)
+            console.log("clean status", result)
             for (const value of result) {
                 cmdArr.push(['del', value]);
             }
@@ -97,6 +99,10 @@ export abstract class StatusChannelManager {
 
     public async flushall(): Promise<string> {
         return await this.redisClient.flushallAsync();
+    }
+
+    public async statusCount(): Promise<number> {
+        return this.redisClient.evalAsync(`local ks = redis.call('keys',KEYS[1]);return #ks;`, 1, this.statusPrefixKeys)
     }
 
     public async add(uid: string, sid: string): Promise<number> {
@@ -141,14 +147,14 @@ export abstract class StatusChannelManager {
     protected static GenKey(prefix: string, id: string, channelName: string = null) {
         let genKey = '';
         if (channelName === null)
-            genKey = `${prefix}:${id}`;
+            genKey = `${ prefix }:${ id }`;
         else
-            genKey = `${prefix}:${channelName}:${id}`;
+            genKey = `${ prefix }:${ channelName }:${ id }`;
         return genKey;
     }
 
     protected static GenCleanKey(prefix) {
-        return `${prefix}*`;
+        return `${ prefix }*`;
     }
 }
 

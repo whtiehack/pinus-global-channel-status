@@ -106,7 +106,7 @@ export default class GlobalChannelManager extends StatusChannelManager {
             });
             cmdArr[sid] = StatusChannelManager.ExecMultiCommands(this.redisClient, serverIdArr);
         }
-        const channelObjectArr = await Promise.all(Object.values(cmdArr));
+        const channelObjectArr: {}[] = await Promise.all(Object.values(cmdArr));
         const channelObject = {};
         const keys = Object.keys(cmdArr);
         for (let i = 0; i < keys.length; i++) {

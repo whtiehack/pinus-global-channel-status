@@ -11,7 +11,7 @@
     "@types/jest": "24.0.23",
     "@types/node": "10.17.6",
     "@types/redis": "2.8.14",
-    "jest": "24.8.0",
+    "jest": "24.9.0",
     "typescript": "3.3.4000",
     "ts-jest": "24.2.0",
     "ts-node": "8.5.4"

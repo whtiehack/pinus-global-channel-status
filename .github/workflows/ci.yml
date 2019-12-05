@@ -1,0 +1,26 @@
+name: Node.js Package
+# https://github.com/actions/starter-workflows/blob/master/ci/npm-publish.yml
+on:
+  [push,pull_request]
+# https://github.com/actions/starter-workflows/issues/158
+# redis
+# redis
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: ci
+    services:
+      redis:
+        image: redis:4.0.0
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm install --dev
+      - run: npm run test
+      - run: npm run build

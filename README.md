@@ -1,4 +1,7 @@
-# pinusGlobalChannelStatus  [![Build Status](https://travis-ci.org/whtiehack/pinus-global-channel-status.svg?branch=v8)](https://travis-ci.org/whtiehack/pinus-global-channel-status)
+# pinusGlobalChannelStatus  
+[![Build Status](https://travis-ci.org/whtiehack/pinus-global-channel-status.svg?branch=v8)](https://travis-ci.org/whtiehack/pinus-global-channel-status)
+[![Actions Status](https://github.com/whtiehack/pinus-global-channel-status/workflows/ci/badge.svg?branch=v8&event=push)](https://github.com/whtiehack/pinus-global-channel-status/actions)
+
 pinus 分布式服务器通讯 原址：https://github.com/frank198/pomeloGlobalChannel
 
 

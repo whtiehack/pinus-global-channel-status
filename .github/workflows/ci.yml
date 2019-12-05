@@ -1,4 +1,4 @@
-name: Node.js Package
+name: ci
 # https://github.com/actions/starter-workflows/blob/master/ci/npm-publish.yml
 on:
   [push,pull_request]

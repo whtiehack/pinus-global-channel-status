@@ -1,8 +1,9 @@
 name: Node.js Package
 # https://github.com/actions/starter-workflows/blob/master/ci/npm-publish.yml
 on:
-  release:
-    types: [created]
+  on: [push]
+#  release:
+#    types: [created]
 # https://github.com/actions/starter-workflows/issues/158
 # redis
 # redis

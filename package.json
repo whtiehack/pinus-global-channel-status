@@ -12,7 +12,7 @@
     "@types/node": "10.17.21",
     "@types/redis": "2.8.21",
     "jest": "25.4.0",
-    "typescript": "3.8.3",
+    "typescript": "3.9.3",
     "ts-jest": "26.0.0",
     "ts-node": "8.9.1"
   },

@@ -8,7 +8,7 @@
     "redis": "^3.0.0"
   },
   "devDependencies": {
-    "@types/jest": "26.0.10",
+    "@types/jest": "26.0.12",
     "@types/node": "10.17.28",
     "@types/redis": "2.8.26",
     "jest": "25.4.0",

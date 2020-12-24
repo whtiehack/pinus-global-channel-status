@@ -321,7 +321,7 @@ describe('test channel', () => {
         it('test service pushMessageByChannelName', async () => {
             const mockRpc = jest.spyOn(globalChannel as any, 'RpcInvokePromise',);
             let failedArr = [];
-            mockRpc.mockImplementation(async (serverId: string, msg: object) => {
+            (mockRpc as any).mockImplementation(async (serverId: string, msg: object) => {
                 console.log('mock app.rpcInvoke', serverId, msg);
                 if (serverId == 'connector_1') {
                     return failedArr = msg['args'][2];
@@ -365,7 +365,7 @@ describe('test channel', () => {
 
             let failedIds = [];
             const mockRpc = jest.spyOn(globalChannel as any, 'RpcInvokePromise',);
-            mockRpc.mockImplementation(async (serverId: string, msg: object) => {
+            (mockRpc as any).mockImplementation(async (serverId: string, msg: object) => {
                 console.log('mock app.rpcInvoke', serverId, msg);
                 if (serverId == 'connector_1') {
                     return failedIds = msg['args'][2];

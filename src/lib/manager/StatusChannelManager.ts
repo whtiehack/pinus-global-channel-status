@@ -36,7 +36,7 @@ export abstract class StatusChannelManager {
     }
 
     public start(): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             let config = this.opts;
             if (process.env.NODE_ENV == 'ci') {
                 config = "redis://127.0.0.1:6379" as any;

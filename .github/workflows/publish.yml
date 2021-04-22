@@ -1,9 +1,9 @@
 name: Node.js Package
 # https://github.com/actions/starter-workflows/blob/master/ci/npm-publish.yml
 on:
-#  [push]
+  #  [push]
   release:
-    types: [created]
+    types: [ created ]
 # https://github.com/actions/starter-workflows/issues/158
 # redis
 # redis
@@ -19,10 +19,10 @@ jobs:
           - 6379:6379
         options: --entrypoint redis-server
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: '12.x'
       - run: npm install --dev
       - run: npm run test
       - run: npm run build
@@ -31,11 +31,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm install
       - run: npm run build
       - run: npm publish

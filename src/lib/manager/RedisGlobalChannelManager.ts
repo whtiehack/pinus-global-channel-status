@@ -13,12 +13,13 @@ export default class GlobalChannelManager extends StatusChannelManager {
             return await super.add(uid, sid);
         if (typeof channelName == 'string') {
             const genKey = StatusChannelManager.GenKey(this.prefix, sid, channelName);
-            return await this.redisClient.saddAsync(genKey, uid);
+            return await this.redisClient.sAdd(genKey, uid);
         }
-        const cmdArr = channelName.map(channel => {
-            return ['sadd', StatusChannelManager.GenKey(this.prefix, sid, channel), uid];
-        });
-        return await StatusChannelManager.ExecMultiCommands(this.redisClient, cmdArr);
+        let multi = this.redisClient.multi();
+        for (const channel of channelName) {
+            multi.sAdd(StatusChannelManager.GenKey(this.prefix, sid, channel), uid);
+        }
+        return await multi.exec() as any;
     }
 
     public async destroyChannel(channelName: string | string[]): Promise<number[]> {
@@ -26,20 +27,20 @@ export default class GlobalChannelManager extends StatusChannelManager {
             return null;
         }
         const servers = this.app.getServers();
-        const cmdArr = [];
         if (typeof channelName == 'string') {
             channelName = [channelName];
         }
+        let multi = this.redisClient.multi();
         for (const serverId of Object.keys(servers)) {
             const server = servers[serverId];
             if (this.app.isFrontend(server)) {
                 for (const channel of channelName) {
                     if (channel)
-                        cmdArr.push(['del', StatusChannelManager.GenKey(this.prefix, serverId, channel)]);
+                        multi.del(StatusChannelManager.GenKey(this.prefix, serverId, channel));
                 }
             }
         }
-        return await StatusChannelManager.ExecMultiCommands(this.redisClient, cmdArr);
+        return (await multi.exec()) as any;
     }
 
     /**
@@ -54,12 +55,13 @@ export default class GlobalChannelManager extends StatusChannelManager {
             return await super.leave(uid, sid);
         if (typeof channelName == 'string') {
             const genKey = StatusChannelManager.GenKey(this.prefix, sid, channelName);
-            return await this.redisClient.sremAsync(genKey, uid);
+            return await this.redisClient.sRem(genKey, uid);
         }
-        const cmdArr = channelName.map(channel => {
-            return ['srem', StatusChannelManager.GenKey(this.prefix, sid, channel), uid];
-        });
-        return await StatusChannelManager.ExecMultiCommands(this.redisClient, cmdArr);
+        let multi = this.redisClient.multi();
+        for (const channel of channelName) {
+            multi.sRem(StatusChannelManager.GenKey(this.prefix, sid, channel), uid);
+        }
+        return await multi.exec() as any;
 
     }
 
@@ -71,7 +73,7 @@ export default class GlobalChannelManager extends StatusChannelManager {
      */
     public async getMembersBySid(channelName: string, sid: string): Promise<string[]> {
         const genKey = StatusChannelManager.GenKey(this.prefix, sid, channelName);
-        return await this.redisClient.smembersAsync(genKey);
+        return await this.redisClient.sMembers(genKey);
     }
 
     /**
@@ -100,11 +102,17 @@ export default class GlobalChannelManager extends StatusChannelManager {
         const cmdArr = {};
         for (const serverObject of servers) {
             const sid = serverObject.id;
-            let serverIdArr = cmdArr[sid] ? cmdArr[sid] : [];
-            serverIdArr = channelName.map(change => {
-                return ['smembers', StatusChannelManager.GenKey(this.prefix, sid, change)];
-            });
-            cmdArr[sid] = StatusChannelManager.ExecMultiCommands(this.redisClient, serverIdArr);
+            // 可能有bug?
+            // let serverIdArr = cmdArr[sid] ? cmdArr[sid] : [];
+            // serverIdArr = channelName.map(change => {
+            //     return ['smembers', StatusChannelManager.GenKey(this.prefix, sid, change)];
+            // });
+            // cmdArr[sid] = StatusChannelManager.ExecMultiCommands(this.redisClient, serverIdArr);
+            let multi = this.redisClient.multi();
+            for (const channel of channelName) {
+                multi.sMembers(StatusChannelManager.GenKey(this.prefix, sid, channel));
+            }
+            cmdArr[sid] = multi.exec();
         }
         const channelObjectArr: {}[] = await Promise.all(Object.values(cmdArr));
         const channelObject = {};
@@ -131,11 +139,11 @@ export default class GlobalChannelManager extends StatusChannelManager {
         if (typeof channelName == 'string') {
             channelName = [channelName];
         }
-        const serverIdArr = channelName.map(change => {
-            return ['smembers', StatusChannelManager.GenKey(this.prefix, sid, change)];
-        });
-
-        const channelObjectArr = await StatusChannelManager.ExecMultiCommands(this.redisClient, serverIdArr);
+        let multi = this.redisClient.multi();
+        for (const channel of channelName) {
+            multi.sMembers(StatusChannelManager.GenKey(this.prefix, sid, channel));
+        }
+        const channelObjectArr = await multi.exec();
         const channelObject = {};
         for (let i = 0; i < channelName.length; i++) {
             channelObject[channelName[i]] = channelObjectArr[i];

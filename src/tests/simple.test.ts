@@ -36,6 +36,14 @@ const app: any = {
 config.channelPrefix = 'TEST:CHANNEL';
 config.statusPrefix = 'TEST:STATUS';
 config.cleanOnStartUp = true;
+if (process.env.NODE_ENV == 'ci') {
+    config.host = '127.0.0.1';
+    config.port = 6379;
+} else if (process.env.NODE_ENV == 'gitlab') {
+    config.host = 'redis';
+    config.port = 6379;
+}
+console.log('test service config', config);
 const globalChannel = new GlobalChannelServiceStatus(app, config);
 const redisManager: GlobalChannelManager = (globalChannel as any).manager;
 
@@ -60,7 +68,7 @@ class Test {
         const coArr = [];
         for (let i = 0; i < 50; i++) {
             const index = Test.random(0, serverId.length - 1);
-            coArr.push(redisManager.add(`uuid_${ i }`, serverId[index], channelName[i % 3]));
+            coArr.push(redisManager.add(`uuid_${i}`, serverId[index], channelName[i % 3]));
         }
         const result = await Promise.all(coArr);
         console.info('test.add', JSON.stringify(result));
@@ -85,7 +93,7 @@ class Test {
         const coArr = [];
         for (let i = 0; i < 10; i++) {
             const index = Test.random(0, serverId.length - 1);
-            coArr.push(redisManager.add(`uuid_${ i }`, serverId[index]));
+            coArr.push(redisManager.add(`uuid_${i}`, serverId[index]));
         }
         const result = await Promise.all(coArr);
         console.info('test.addNoChannel', result);

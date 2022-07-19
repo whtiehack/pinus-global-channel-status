@@ -1,13 +1,11 @@
 'use strict';
 import * as redisClass from 'redis';
-import promisifyAll from '../util/promisifyAll';
 
-promisifyAll(redisClass.RedisClient.prototype);
-promisifyAll(redisClass.Multi.prototype);
+
 const DEFAULT_PREFIX = 'PINUS:CHANNEL';
 const STATUS_PREFIX = 'PINUS:STATUS';
 
-export interface PinusGlobalChannelStatusOptions extends redisClass.ClientOpts {
+export interface PinusGlobalChannelStatusOptions {
     // channel 前缀
     channelPrefix?: string;
     // status 前缀
@@ -16,6 +14,18 @@ export interface PinusGlobalChannelStatusOptions extends redisClass.ClientOpts {
     password?: string;
     // 启动时候清除  建议对 connector 设置成启动时清除
     cleanOnStartUp?: boolean;
+
+    // 兼容老的redis配置
+    host?: string;
+    port?: number;
+    db?: number;
+
+    // 新的redis配置
+    url?: string
+    username?: string;
+    name?: string;
+    database?: number;
+    // 其它配置 参考 redis client https://github.com/redis/node-redis
 }
 
 
@@ -23,7 +33,7 @@ export abstract class StatusChannelManager {
     protected readonly prefix: string;
     private readonly statusPrefix: string;
     private readonly statusPrefixKeys: string;
-    protected redisClient: any = null;
+    protected redisClient: redisClass.RedisClientType<any,any,any> = null;
 
     protected constructor(protected app: any, protected opts: PinusGlobalChannelStatusOptions = {} as any) {
         this.prefix = opts.channelPrefix || DEFAULT_PREFIX;
@@ -33,17 +43,19 @@ export abstract class StatusChannelManager {
             this.opts.password = this.opts.auth_pass;
             delete this.opts.auth_pass;
         }
+        if (this.opts.host && !this.opts.url) {
+            // 兼容老的redis配置 转换
+            this.opts.url = `redis://${ this.opts.host }:${ this.opts.port }`;
+            if(!this.opts.database){
+                this.opts.database = this.opts.db;
+            }
+        }
     }
 
     public start(): Promise<any> {
         return new Promise<void>((resolve, reject) => {
-            let config = this.opts;
-            if (process.env.NODE_ENV == 'ci') {
-                config = "redis://127.0.0.1:6379" as any;
-            } else if (process.env.NODE_ENV == 'gitlab') {
-                config = "redis://redis:6379" as any;
-            }
-            const redisClient = redisClass.createClient(config);
+            const redisClient = redisClass.createClient(this.opts);
+            redisClient.connect();
             redisClient.on('error', err => {
                 console.error('redis error', err);
                 // throw new Error(`[globalChannel][redis errorEvent]err:${err.stack}`);
@@ -65,8 +77,7 @@ export abstract class StatusChannelManager {
     public async stop(force = true) {
         if (this.redisClient) {
             // this.redisClient.quit();
-            this.redisClient.quitAsync();
-            this.redisClient.endAsync(force);
+            await this.redisClient.quit();
             this.redisClient = null;
             return true;
         }
@@ -75,73 +86,64 @@ export abstract class StatusChannelManager {
 
     public async clean() {
         let cleanKey = StatusChannelManager.GenCleanKey(this.prefix);
-        let result = await this.redisClient.keysAsync(cleanKey);
-        const cmdArr = [];
+        let result = await this.redisClient.keys(cleanKey);
+        let multi = this.redisClient.multi();
         if (Array.isArray(result) && result.length > 0) {
             console.log("clean channel", result)
             for (const value of result) {
-                cmdArr.push(['del', value]);
+                multi.del(value);
             }
         }
         cleanKey = StatusChannelManager.GenCleanKey(this.statusPrefix);
-        result = await this.redisClient.keysAsync(cleanKey);
+        result = await this.redisClient.keys(cleanKey);
         if (Array.isArray(result) && result.length > 0) {
             console.log("clean status", result)
             for (const value of result) {
-                cmdArr.push(['del', value]);
+                multi.del(value);
             }
         }
-        if (!cmdArr.length) {
-            return [];
-        }
-        return await StatusChannelManager.ExecMultiCommands(this.redisClient, cmdArr);
+        return multi.exec();
     }
 
     public async flushall(): Promise<string> {
-        return await this.redisClient.flushallAsync();
+        return await this.redisClient.flushAll();
     }
 
     public async statusCount(): Promise<number> {
-        return this.redisClient.evalAsync(`local ks = redis.call('keys',KEYS[1]);return #ks;`, 1, this.statusPrefixKeys)
+         let result = await this.redisClient.eval(`local ks = redis.call('keys',KEYS[1]);return #ks;`,{keys: [this.statusPrefixKeys]});
+         return Number(result);
     }
 
     public async add(uid: string, sid: string): Promise<number> {
         const genKey = StatusChannelManager.GenKey(this.statusPrefix, uid);
-        return await this.redisClient.saddAsync(genKey, sid);
+        return this.redisClient.sAdd(genKey, sid);
     }
 
     public async leave(uid: string, sid: string): Promise<number> {
         const genKey = StatusChannelManager.GenKey(this.statusPrefix, uid);
-        return await this.redisClient.sremAsync(genKey, sid);
+        return await this.redisClient.sRem(genKey, sid);
     }
 
     public async getSidsByUid(uid: string): Promise<string[]> {
         const genKey = StatusChannelManager.GenKey(this.statusPrefix, uid);
-        return await this.redisClient.smembersAsync(genKey);
+        return await this.redisClient.sMembers(genKey);
     }
 
     public async getSidsByUidArr(uidArr: string[]): Promise<{ [uid: string]: string[] }> {
-        let serverIdArr;
         if (!uidArr || !uidArr.length) {
             return null;
         }
+        let multi = this.redisClient.multi();
         //    uidArr = [...new Set(uidArr)];
-        serverIdArr = uidArr.map(uid => {
-            return ['smembers', StatusChannelManager.GenKey(this.statusPrefix, uid)];
-        });
-        const uidObjectArr = await StatusChannelManager.ExecMultiCommands(this.redisClient, serverIdArr);
+        for (const uid of uidArr) {
+            multi.sMembers(StatusChannelManager.GenKey(this.statusPrefix, uid));
+        }
+        const uidObjectArr = await multi.exec();
         const uidObject = {};
         for (let i = 0; i < uidArr.length; i++) {
             uidObject[uidArr[i]] = uidObjectArr[i];
         }
         return uidObject;
-    }
-
-    protected static async ExecMultiCommands(redisClient, cmdList) {
-        if (!cmdList || cmdList.length <= 0) {
-            return null;
-        }
-        return await redisClient.multi(cmdList).execAsync();
     }
 
     protected static GenKey(prefix: string, id: string, channelName: string = null) {
